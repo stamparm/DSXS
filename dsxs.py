@@ -33,11 +33,12 @@ def retrieve_content(url, data=None):
     return retval or ""
 
 def scan_page(url, data=None):
-    retval = False
+    usable, retval = False, False
     try:
         for phase in (GET, POST):
             current = url if phase is GET else (data or "")
             for match in re.finditer(r"((\A|[?&])(?P<parameter>\w+)=)(?P<value>[^&]+)", current):
+                usable = True
                 print "* scanning %s parameter '%s'" % (phase, match.group("parameter"))
                 prefix, suffix = ["".join(random.sample(string.ascii_lowercase, PREFIX_SUFFIX_LENGTH)) for i in xrange(2)]
                 tampered = current.replace(match.group(0), "%s%s%s%s" % (match.group(1), prefix, "".join(random.sample(SPECIAL_CHAR_POOL, len(SPECIAL_CHAR_POOL))), suffix))
@@ -50,6 +51,8 @@ def scan_page(url, data=None):
                                 print " (i) %s parameter '%s' appears to be XSS vulnerable! (%s filtering)" % (phase, match.group("parameter"), "no" if all([char in sample.group(1) for char in SPECIAL_CHAR_POOL]) else "some")
                                 retval = True
                             break
+        if not usable:
+            print " (x) no usable GET/POST parameters found"
     except KeyboardInterrupt:
         print "\r (x) Ctrl-C pressed"
     return retval
