@@ -7,7 +7,7 @@ VERSION = "0.1a"
 AUTHOR  = "Miroslav Stampar (http://unconciousmind.blogspot.com | @stamparm)"
 LICENSE = "Public domain (FREE)"
 
-SPECIAL_CHAR_POOL    = ['\'', '"', '>', '<']            # characters used for XSS tampering of parameter values
+SPECIAL_CHAR_POOL    = ('\'', '"', '>', '<')            # characters used for XSS tampering of parameter values
 GET, POST = "GET", "POST"                               # enumerator-like values used for marking current phase
 PREFIX_SUFFIX_LENGTH = 5                                # length of random prefix/suffix used in XSS tampering
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer" # optional HTTP headers
