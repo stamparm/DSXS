@@ -42,6 +42,9 @@ def retrieve_content(url, data=None):
     return retval or ""
 
 def scan_page(url, data=None):
+    def _contains(content, chars):
+        content = re.sub(r"\\[%s]" % "".join(chars), "", content, re.S)
+        return all([char in content for char in chars])
     usable, retval = False, False
     try:
         for phase in (GET, POST):
@@ -56,8 +59,8 @@ def scan_page(url, data=None):
                 if sample:
                     for regex, condition in XSS_PATTERNS:
                         if re.search(regex % sample.group(1), content, re.I | re.S):
-                            if all([char in sample.group(1) and not "\\%s" % char in sample.group(1) for char in condition]):
-                                print " (i) %s parameter '%s' appears to be XSS vulnerable! (%s filtering)" % (phase, match.group("parameter"), "no" if all([char in sample.group(1) for char in SPECIAL_CHAR_POOL]) else "some")
+                            if _contains(sample.group(1), condition):
+                                print " (i) %s parameter '%s' appears to be XSS vulnerable! (%s filtering)" % (phase, match.group("parameter"), "no" if _contains(sample.group(1), SPECIAL_CHAR_POOL) else "some")
                                 retval = True
                             break
         if not usable:
