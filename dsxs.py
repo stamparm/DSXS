@@ -3,7 +3,7 @@
 import cookielib, optparse, random, re, string, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code)"
-VERSION = "0.1a"
+VERSION = "0.1b"
 AUTHOR  = "Miroslav Stampar (http://unconciousmind.blogspot.com | @stamparm)"
 LICENSE = "Public domain (FREE)"
 
@@ -47,7 +47,7 @@ def scan_page(url, data=None):
                 if sample:
                     for regex, condition in XSS_PATTERNS:
                         if re.search(regex % sample.group(1), content, re.I | re.S):
-                            if all([char in sample.group(1) for char in condition]):
+                            if all([char in sample.group(1) and not "\\%s" % char in sample.group(1) for char in condition]):
                                 print " (i) %s parameter '%s' appears to be XSS vulnerable! (%s filtering)" % (phase, match.group("parameter"), "no" if all([char in sample.group(1) for char in SPECIAL_CHAR_POOL]) else "some")
                                 retval = True
                             break
