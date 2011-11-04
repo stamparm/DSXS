@@ -73,7 +73,7 @@ if __name__ == "__main__":
     parser.add_option("--cookie", dest="cookie", help="HTTP cookie header value")
     parser.add_option("--user-agent", dest="ua", help="HTTP user-agent header value")
     parser.add_option("--referer", dest="referer", help="HTTP referer header value")
-    parser.add_option("--proxy", dest="proxy", help="HTTP proxy to be used (e.g. \"http://127.0.0.1:8080\")")
+    parser.add_option("--proxy", dest="proxy", help="HTTP proxy address (e.g. \"http://127.0.0.1:8080\")")
     options, _ = parser.parse_args()
     if options.url:
         init_options(options.proxy, options.cookie, options.ua, options.referer)
