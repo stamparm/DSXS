@@ -21,6 +21,14 @@ XSS_PATTERNS = (
     (r'<[^>]*%s[^>]*>', ())
 )
 
+USER_AGENTS = (                                         # items used for picking random HTTP User-Agent header value
+    "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.20 (KHTML, like Gecko) Chrome/11.0.669.0 Safari/534.20",
+    "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_7_0; en-US) AppleWebKit/534.21 (KHTML, like Gecko) Chrome/11.0.678.0 Safari/534.21",
+    "Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)",
+    "Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20020508 Netscape6/6.1",
+    "Mozilla/5.0 (X11;U; Linux i686; en-GB; rv:1.9.1) Gecko/20090624 Ubuntu/9.04 (jaunty) Firefox/3.5",
+    "Opera/9.80 (X11; U; Linux i686; en-US; rv:1.9.2.3) Presto/2.2.15 Version/10.10"
+)
 _headers = None                                         # used for storing dictionary with optional header values
 
 def retrieve_content(url, data=None):
@@ -71,12 +79,13 @@ if __name__ == "__main__":
     parser.add_option("-u", "--url", dest="url", help="Target URL (e.g. \"http://www.target.com/page.htm?id=1\")")
     parser.add_option("--data", dest="data", help="POST data (e.g. \"query=test\")")
     parser.add_option("--cookie", dest="cookie", help="HTTP Cookie header value")
-    parser.add_option("--user-agent", dest="ua", help="HTTP User-agent header value")
+    parser.add_option("--user-agent", dest="ua", help="HTTP User-Agent header value")
+    parser.add_option("--random-agent", dest="randomAgent", action="store_true", help="Use randomly selected HTTP User-Agent header value")
     parser.add_option("--referer", dest="referer", help="HTTP Referer header value")
     parser.add_option("--proxy", dest="proxy", help="HTTP proxy address (e.g. \"http://127.0.0.1:8080\")")
     options, _ = parser.parse_args()
     if options.url:
-        init_options(options.proxy, options.cookie, options.ua, options.referer)
+        init_options(options.proxy, options.cookie, options.ua if not options.randomAgent else random.choice(USER_AGENTS), options.referer)
         result = scan_page(options.url if options.url.startswith("http") else "http://%s" % options.url, options.data)
         print "\nscan results: %s vulnerabilities found" % ("possible" if result else "no")
     else:
