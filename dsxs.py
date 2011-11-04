@@ -29,6 +29,7 @@ USER_AGENTS = (                                         # items used for picking
     "Mozilla/5.0 (X11;U; Linux i686; en-GB; rv:1.9.1) Gecko/20090624 Ubuntu/9.04 (jaunty) Firefox/3.5",
     "Opera/9.80 (X11; U; Linux i686; en-US; rv:1.9.2.3) Presto/2.2.15 Version/10.10"
 )
+
 _headers = None                                         # used for storing dictionary with optional header values
 
 def retrieve_content(url, data=None):
