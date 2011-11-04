@@ -51,7 +51,7 @@ def scan_page(url, data=None):
                                 retval = True
                             break
     except KeyboardInterrupt:
-        print "\r (x) Ctrl-C was pressed"
+        print "\r (x) Ctrl-C pressed"
     return retval
 
 def init_options(proxy=None, cookie=None, ua=None, referer=None):
@@ -67,9 +67,9 @@ if __name__ == "__main__":
     parser = optparse.OptionParser(version=VERSION)
     parser.add_option("-u", "--url", dest="url", help="Target URL (e.g. \"http://www.target.com/page.htm?id=1\")")
     parser.add_option("--data", dest="data", help="POST data (e.g. \"query=test\")")
-    parser.add_option("--cookie", dest="cookie", help="HTTP cookie header")
-    parser.add_option("--user-agent", dest="ua", help="HTTP user-agent header")
-    parser.add_option("--referer", dest="referer", help="HTTP referer header")
+    parser.add_option("--cookie", dest="cookie", help="HTTP cookie header value")
+    parser.add_option("--user-agent", dest="ua", help="HTTP user-agent header value")
+    parser.add_option("--referer", dest="referer", help="HTTP referer header value")
     parser.add_option("--proxy", dest="proxy", help="HTTP proxy to be used (e.g. \"http://127.0.0.1:8080\")")
     options, _ = parser.parse_args()
     if options.url:
