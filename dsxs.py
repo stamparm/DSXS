@@ -3,12 +3,13 @@
 import cookielib, optparse, random, re, string, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code)"
-VERSION = "0.1c"
+VERSION = "0.1d"
 AUTHOR  = "Miroslav Stampar (http://unconciousmind.blogspot.com | @stamparm)"
 LICENSE = "Public domain (FREE)"
 
-SPECIAL_CHAR_POOL    = ('\'', '"', '>', '<')            # characters used for XSS tampering of parameter values
-GET, POST = "GET", "POST"                               # enumerator-like values used for marking current phase
+SMALLER_CHAR_POOL    = ('<', '>')                       # characters used for XSS tampering of parameter values (smaller set - for avoiding SQLi errors)
+LARGER_CHAR_POOL     = ('\'', '"', '>', '<')            # characters used for XSS tampering of parameter values (larger set)
+GET, POST            = "GET", "POST"                    # enumerator-like values used for marking current phase
 PREFIX_SUFFIX_LENGTH = 5                                # length of random prefix/suffix used in XSS tampering
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer" # optional HTTP header names
 
@@ -50,18 +51,21 @@ def scan_page(url, data=None):
         for phase in (GET, POST):
             current = url if phase is GET else (data or "")
             for match in re.finditer(r"((\A|[?&])(?P<parameter>\w+)=)(?P<value>[^&]+)", current):
-                usable = True
+                found, usable = False, True
                 print "* scanning %s parameter '%s'" % (phase, match.group("parameter"))
                 prefix, suffix = ["".join(random.sample(string.ascii_lowercase, PREFIX_SUFFIX_LENGTH)) for i in xrange(2)]
-                tampered = current.replace(match.group(0), "%s%s%s%s" % (match.group(1), prefix, "".join(random.sample(SPECIAL_CHAR_POOL, len(SPECIAL_CHAR_POOL))), suffix))
-                content = retrieve_content(tampered, data) if phase is GET else retrieve_content(url, tampered)
-                for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I | re.S):
-                    for regex, condition in XSS_PATTERNS:
-                        if re.search(regex % sample.group(1).replace("\\", "\\\\"), content, re.I | re.S):
-                            if _contains(sample.group(1), condition):
-                                print " (i) %s parameter '%s' appears to be XSS vulnerable! (%s filtering)" % (phase, match.group("parameter"), "no" if _contains(sample.group(1), SPECIAL_CHAR_POOL) else "some")
-                                retval = True
-                            break
+                for pool in (LARGER_CHAR_POOL, SMALLER_CHAR_POOL):
+                    if not found:
+                        tampered = current.replace(match.group(0), "%s%s%s%s" % (match.group(1), prefix, "".join(random.sample(pool, len(pool))), suffix))
+                        content = retrieve_content(tampered, data) if phase is GET else retrieve_content(url, tampered)
+                        for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I | re.S):
+                            for regex, condition in XSS_PATTERNS:
+                                context = re.search(regex % sample.group(1).replace("\\", "\\\\"), content, re.I | re.S)
+                                if context:
+                                    if _contains(sample.group(1), condition):
+                                        print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), repr(context.group(0).replace(sample.group(0),"...")))
+                                        found = retval = True
+                                    break
         if not usable:
             print " (x) no usable GET/POST parameters found"
     except KeyboardInterrupt:
