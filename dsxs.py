@@ -11,6 +11,7 @@ SMALLER_CHAR_POOL    = ('<', '>')                       # characters used for XS
 LARGER_CHAR_POOL     = ('\'', '"', '>', '<')            # characters used for XSS tampering of parameter values (larger set)
 GET, POST            = "GET", "POST"                    # enumerator-like values used for marking current phase
 PREFIX_SUFFIX_LENGTH = 5                                # length of random prefix/suffix used in XSS tampering
+CONTEXT_DISPLAY_OFFSET = 10                             # offset outside the affected context for displaying in vulnerability report
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer" # optional HTTP header names
 
 XSS_PATTERNS = (
@@ -63,7 +64,7 @@ def scan_page(url, data=None):
                                 context = re.search(regex % sample.group(1).replace("\\", "\\\\"), content, re.I | re.S)
                                 if context:
                                     if _contains(sample.group(1), condition):
-                                        print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), repr(content[context.start()-10:context.end()+20].replace(sample.group(0),"-REFLECTED-")))
+                                        print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), repr(content[context.start()-CONTEXT_DISPLAY_OFFSET:context.end()+CONTEXT_DISPLAY_OFFSET].replace(sample.group(0),"XSS")))
                                         found = retval = True
                                     break
         if not usable:
