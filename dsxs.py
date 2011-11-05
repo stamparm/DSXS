@@ -3,7 +3,7 @@
 import cookielib, optparse, random, re, string, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code)"
-VERSION = "0.1b"
+VERSION = "0.1c"
 AUTHOR  = "Miroslav Stampar (http://unconciousmind.blogspot.com | @stamparm)"
 LICENSE = "Public domain (FREE)"
 
@@ -55,8 +55,7 @@ def scan_page(url, data=None):
                 prefix, suffix = ["".join(random.sample(string.ascii_lowercase, PREFIX_SUFFIX_LENGTH)) for i in xrange(2)]
                 tampered = current.replace(match.group(0), "%s%s%s%s" % (match.group(1), prefix, "".join(random.sample(SPECIAL_CHAR_POOL, len(SPECIAL_CHAR_POOL))), suffix))
                 content = retrieve_content(tampered, data) if phase is GET else retrieve_content(url, tampered)
-                sample = reduce(lambda x,y: x or y, [re.search(regex, content, re.I | re.S) for regex in ("%s(.*)%s" % (prefix, suffix), "%s([^\s]+)" % prefix, "([^\s]+)%s" % suffix)])
-                if sample:
+                for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I | re.S):
                     for regex, condition in XSS_PATTERNS:
                         if re.search(regex % sample.group(1).replace("\\", "\\\\"), content, re.I | re.S):
                             if _contains(sample.group(1), condition):
