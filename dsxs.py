@@ -58,7 +58,7 @@ def scan_page(url, data=None):
                 sample = reduce(lambda x,y: x or y, [re.search(regex, content, re.I | re.S) for regex in ("%s(.*)%s" % (prefix, suffix), "%s([^\s]+)" % prefix, "([^\s]+)%s" % suffix)])
                 if sample:
                     for regex, condition in XSS_PATTERNS:
-                        if re.search(regex % sample.group(1), content, re.I | re.S):
+                        if re.search(regex % sample.group(1).replace("\\", "\\\\"), content, re.I | re.S):
                             if _contains(sample.group(1), condition):
                                 print " (i) %s parameter '%s' appears to be XSS vulnerable! (%s filtering)" % (phase, match.group("parameter"), "no" if _contains(sample.group(1), SPECIAL_CHAR_POOL) else "some")
                                 retval = True
