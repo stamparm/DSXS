@@ -63,7 +63,7 @@ def scan_page(url, data=None):
                                 context = re.search(regex % sample.group(1).replace("\\", "\\\\"), content, re.I | re.S)
                                 if context:
                                     if _contains(sample.group(1), condition):
-                                        print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), re.sub(r"%s.*?%s" % (prefix, suffix), "XSS", repr(content[max(0, context.start()-CONTEXT_DISPLAY_OFFSET):context.end()+CONTEXT_DISPLAY_OFFSET])))
+                                        print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), re.sub(r"%s.*?%s" % (prefix, suffix), "XSS", repr(content[max(0, context.start()-CONTEXT_DISPLAY_OFFSET):context.end()+CONTEXT_DISPLAY_OFFSET]), re.I | re.S))
                                         found = retval = True
                                     break
         if not usable:
