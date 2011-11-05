@@ -7,7 +7,7 @@ VERSION = "0.1d"
 AUTHOR  = "Miroslav Stampar (http://unconciousmind.blogspot.com | @stamparm)"
 LICENSE = "Public domain (FREE)"
 
-SMALLER_CHAR_POOL    = ('<', '>')                       # characters used for XSS tampering of parameter values (smaller set - for avoiding SQLi errors)
+SMALLER_CHAR_POOL    = ('<', '>')                       # characters used for XSS tampering of parameter values (smaller set - for avoiding possible SQLi errors)
 LARGER_CHAR_POOL     = ('\'', '"', '>', '<')            # characters used for XSS tampering of parameter values (larger set)
 GET, POST            = "GET", "POST"                    # enumerator-like values used for marking current phase
 PREFIX_SUFFIX_LENGTH = 5                                # length of random prefix/suffix used in XSS tampering
