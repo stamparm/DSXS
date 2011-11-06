@@ -16,10 +16,10 @@ COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer" # optional HTTP header n
 
 XSS_PATTERNS = (                                        # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters))
     (r'\A[^<>]*%s[^<>]*\Z', ('<', '>')),                # ...                       (pure text response)
-    (r'<script[^>]*>.*%s.*</script>', ()),              # <script>...</script>      (inside script tags)
+    (r'<script[^>]*>.*%s.*</script>', ()),              # <script>...</script>      (enclosed by script tags)
     (r'>[^<]*%s[^<]*(<|\Z)', ('<', '>')),               # >...<                     (outside tags)
-    (r"<[^>]*'[^>']*%s[^>']*'[^>]*>", ('\'',)),         # <...'...'...>             (inside tag; inside single-quotes)
-    (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',)),          # <..."..."...>             (inside tag; inside duouble-quotes)
+    (r"<[^>]*'[^>']*%s[^>']*'[^>]*>", ('\'',)),         # <.'...'.>                 (inside tag; inside single-quotes)
+    (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',)),          # <."...".>                 (inside tag; inside duouble-quotes)
     (r'<[^>]*%s[^>]*>', ())                             # <...>                     (inside tag)
 )
 
