@@ -15,11 +15,11 @@ CONTEXT_DISPLAY_OFFSET = 10                             # offset outside the aff
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer" # optional HTTP header names
 
 XSS_PATTERNS = (                                        # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text")
-    (r'\A[^<>]*%s[^<>]*\Z', ('<', '>'), "... (pure text response)"),
-    (r'<script[^>]*>.*%s.*</script>', (), "<script>...</script> (enclosed by script tags)"),
-    (r'>[^<]*%s[^<]*(<|\Z)', ('<', '>'), ">...< (outside tags)"),
-    (r"<[^>]*'[^>']*%s[^>']*'[^>]*>", ('\'',), "<.'...'.> (inside tag; inside single-quotes)"),
-    (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',), "<.\"...\".> (inside tag; inside duouble-quotes)"),
+    (r'\A[^<>]*%s[^<>]*\Z', ('<', '>'), "... (pure text response; %s)"),
+    (r'<script[^>]*>.*%s.*</script>', (), "<script>...</script> (enclosed by script tags; %s)"),
+    (r'>[^<]*%s[^<]*(<|\Z)', ('<', '>'), ">...< (outside tags; %s)"),
+    (r"<[^>]*'[^>']*%s[^>']*'[^>]*>", ('\'',), "<.'...'.> (inside tag; inside single-quotes; %s)"),
+    (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',), "<.\"...\".> (inside tag; inside duouble-quotes; %s)"),
     (r'<[^>]*%s[^>]*>', (), "<...> (inside tag)")
 )
 
@@ -63,7 +63,7 @@ def scan_page(url, data=None):
                                 context = re.search(regex % sample.group(1).replace("\\", "\\\\"), content, re.I | re.S)
                                 if context:
                                     if _contains(sample.group(1), condition):
-                                        print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info)
+                                        print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info % ("no filtering" if all([char in sample.group(1) for char in LARGER_CHAR_POOL]) else "some filtering"))
                                         found = retval = True
                                     break
         if not usable:
