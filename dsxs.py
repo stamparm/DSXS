@@ -20,7 +20,7 @@ XSS_PATTERNS = (                                        # each (pattern) item co
     (r'>[^<]*%s[^<]*(<|\Z)', ('<', '>'), "\">...<\"; outside tags; %s"),
     (r"<[^>]*'[^>']*%s[^>']*'[^>]*>", ('\'',), "\"<.'...'.>\"; inside tag; inside single-quotes; %s"),
     (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',), "'<.\"...\".>'; inside tag; inside duouble-quotes; %s"),
-    (r'<[^>]*%s[^>]*>', (), "\"<...>;\" inside tag; %s")
+    (r'<[^>]*%s[^>]*>', (), "\"<...>\"; inside tag; %s")
 )
 
 USER_AGENTS = (                                         # items used for picking random HTTP User-Agent header value
