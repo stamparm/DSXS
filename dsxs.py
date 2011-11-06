@@ -61,10 +61,11 @@ def scan_page(url, data=None):
                         for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I | re.S):
                             for regex, condition, info in XSS_PATTERNS:
                                 context = re.search(regex % sample.group(1).replace("\\", "\\\\"), content, re.I | re.S)
-                                if context:
+                                #if context:
+                                if True:
                                     if _contains(sample.group(1), condition):
                                         print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info % ("no filtering" if all([char in sample.group(1) for char in LARGER_CHAR_POOL]) else "some filtering"))
-                                        found = retval = True
+                                        #found = retval = True
                                     break
         if not usable:
             print " (x) no usable GET/POST parameters found"
