@@ -15,12 +15,12 @@ CONTEXT_DISPLAY_OFFSET = 10                             # offset outside the aff
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer" # optional HTTP header names
 
 XSS_PATTERNS = (                                        # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text")
-    (r'\A[^<>]*%s[^<>]*\Z', ('<', '>'), "\"...\"; pure text response; %s"),
-    (r'<script[^>]*>.*%s.*</script>', (), "\"<script>...</script>\"; enclosed by script tags; %s"),
-    (r'>[^<]*%s[^<]*(<|\Z)', ('<', '>'), "\">...<\"; outside tags; %s"),
-    (r"<[^>]*'[^>']*%s[^>']*'[^>]*>", ('\'',), "\"<.'...'.>\"; inside tag; inside single-quotes; %s"),
-    (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',), "'<.\"...\".>'; inside tag; inside duouble-quotes; %s"),
-    (r'<[^>]*%s[^>]*>', (), "\"<...>\"; inside tag; %s")
+    (r'\A[^<>]*%s[^<>]*\Z', ('<', '>'), "\"...\", pure text response, %s"),
+    (r'<script[^>]*>.*%s.*</script>', (), "\"<script>...</script>\", enclosed by script tags, %s"),
+    (r'>[^<]*%s[^<]*(<|\Z)', ('<', '>'), "\">...<\", outside tags, %s"),
+    (r"<[^>]*'[^>']*%s[^>']*'[^>]*>", ('\'',), "\"<.'...'.>\", inside tag, inside single-quotes, %s"),
+    (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',), "'<.\"...\".>', inside tag, inside duouble-quotes, %s"),
+    (r'<[^>]*%s[^>]*>', (), "\"<...>\", inside tag, %s")
 )
 
 USER_AGENTS = (                                         # items used for picking random HTTP User-Agent header value
