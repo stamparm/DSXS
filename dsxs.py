@@ -14,7 +14,7 @@ PREFIX_SUFFIX_LENGTH = 5                                # length of random prefi
 CONTEXT_DISPLAY_OFFSET = 10                             # offset outside the affected context for displaying in vulnerability report
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer" # optional HTTP header names
 
-XSS_PATTERNS = (                                        # order of (pattern) tests is important; each item consists of ((context regex), (prerequisite unfiltered characters))
+XSS_PATTERNS = (                                        # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters))
     (r'\A[^<>]*%s[^<>]*\Z', ('<', '>')),                # ...                       (pure text response)
     (r'<script[^>]*>.*%s.*</script>', ()),              # <script>...</script>      (inside script tags)
     (r'>[^<]*%s[^<]*(<|\Z)', ('<', '>')),               # >...<                     (outside tags)
