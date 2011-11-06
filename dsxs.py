@@ -3,7 +3,7 @@
 import cookielib, optparse, random, re, string, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code)"
-VERSION = "0.1d"
+VERSION = "0.1e"
 AUTHOR  = "Miroslav Stampar (http://unconciousmind.blogspot.com | @stamparm)"
 LICENSE = "Public domain (FREE)"
 
@@ -14,13 +14,13 @@ PREFIX_SUFFIX_LENGTH = 5                                # length of random prefi
 CONTEXT_DISPLAY_OFFSET = 10                             # offset outside the affected context for displaying in vulnerability report
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer" # optional HTTP header names
 
-XSS_PATTERNS = (                                        # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters))
-    (r'\A[^<>]*%s[^<>]*\Z', ('<', '>')),                # ...                       (pure text response)
-    (r'<script[^>]*>.*%s.*</script>', ()),              # <script>...</script>      (enclosed by script tags)
-    (r'>[^<]*%s[^<]*(<|\Z)', ('<', '>')),               # >...<                     (outside tags)
-    (r"<[^>]*'[^>']*%s[^>']*'[^>]*>", ('\'',)),         # <.'...'.>                 (inside tag; inside single-quotes)
-    (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',)),          # <."...".>                 (inside tag; inside duouble-quotes)
-    (r'<[^>]*%s[^>]*>', ())                             # <...>                     (inside tag)
+XSS_PATTERNS = (                                        # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text")
+    (r'\A[^<>]*%s[^<>]*\Z', ('<', '>'), "... (pure text response)"),
+    (r'<script[^>]*>.*%s.*</script>', (), "<script>...</script> (enclosed by script tags)"),
+    (r'>[^<]*%s[^<]*(<|\Z)', ('<', '>'), ">...< (outside tags)"),
+    (r"<[^>]*'[^>']*%s[^>']*'[^>]*>", ('\'',), "<.'...'.> (inside tag; inside single-quotes)"),
+    (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',), "<.\"...\".> (inside tag; inside duouble-quotes)"),
+    (r'<[^>]*%s[^>]*>', (), "<...> (inside tag)")
 )
 
 USER_AGENTS = (                                         # items used for picking random HTTP User-Agent header value
@@ -59,11 +59,11 @@ def scan_page(url, data=None):
                         tampered = current.replace(match.group(0), "%s%s%s%s" % (match.group(1), prefix, "".join(random.sample(pool, len(pool))), suffix))
                         content = retrieve_content(tampered, data) if phase is GET else retrieve_content(url, tampered)
                         for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I | re.S):
-                            for regex, condition in XSS_PATTERNS:
+                            for regex, condition, info in XSS_PATTERNS:
                                 context = re.search(regex % sample.group(1).replace("\\", "\\\\"), content, re.I | re.S)
                                 if context:
                                     if _contains(sample.group(1), condition):
-                                        print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), re.sub(r"%s.*?%s" % (prefix, suffix), "XSS", repr(content[max(0, context.start()-CONTEXT_DISPLAY_OFFSET):context.end()+CONTEXT_DISPLAY_OFFSET]), re.I | re.S))
+                                        print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info)
                                         found = retval = True
                                     break
         if not usable:
