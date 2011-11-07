@@ -21,7 +21,7 @@ Options:
   --referer=REFERER  HTTP Referer header value
   --proxy=PROXY      HTTP proxy address (e.g. "http://127.0.0.1:8080")
 
-$ python dsxs.py -u "http://zero.webappsecurity.com/login1.asp" --data="login=test&password=test&graphicOption=minimum" --random-agent
+$ python dsxs.py -u http://zero.webappsecurity.com/login1.asp --data="login=test&password=test&graphicOption=minimum" --random-agent
 Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code) #v0.1e
  by: Miroslav Stampar (http://unconciousmind.blogspot.com | @stamparm)
 
@@ -32,7 +32,7 @@ Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code) #v0.1e
 
 scan results: possible vulnerabilities found
 
-$ python dsxs.py -u "http://xss.progphp.com/xss8.html?input=1" --random-agent
+$ python dsxs.py -u http://xss.progphp.com/xss8.html?input=1 --random-agent
 Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code) #v0.1e
  by: Miroslav Stampar (http://unconciousmind.blogspot.com | @stamparm)
 
@@ -41,7 +41,7 @@ Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code) #v0.1e
 
 scan results: possible vulnerabilities found
 
-$ python dsxs.py -u "http://xss.progphp.com/xss12.html" --data="bar=secret&foo=test"
+$ python dsxs.py -u http://xss.progphp.com/xss12.html --data="bar=secret&foo=test"
 Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code) #v0.1e
  by: Miroslav Stampar (http://unconciousmind.blogspot.com | @stamparm)
 
