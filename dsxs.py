@@ -44,7 +44,7 @@ def retrieve_content(url, data=None):
 
 def scan_page(url, data=None):
     def _contains(content, chars):
-        content = re.sub(r"\\[%s]" % "".join(chars), "", content, re.S)
+        content = re.sub(r"\\[%s]" % "".join(chars), "", content, re.S) if chars else content
         return all([char in content for char in chars])
     usable, retval = False, False
     try:
