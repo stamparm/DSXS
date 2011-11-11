@@ -16,12 +16,12 @@ COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer" # optional HTTP header n
 
 XSS_PATTERNS = (                                        # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text")
     (r'\A[^<>]*%s[^<>]*\Z', ('<', '>'), "\"...\", pure text response, %s"),
-    (r"<script[^>]*>.*'[^>']*%s[^>']*'.*</script>", ('\''), "\"<script>.'...'.</script>\", enclosed by script tags, inside single-quotes, %s"),
-    (r'<script[^>]*>.*"[^>"]*%s[^>"]*".*</script>', ('"'), "'<script>.\"...\".</script>', enclosed by script tags, inside double-quotes, %s"),
-    (r'<script[^>]*>.*%s.*</script>', (), "\"<script>...</script>\", enclosed by script tags, %s"),
+    (r"<script[^>]*>(?!.*<script).*'[^>']*%s[^>']*'.*</script>", ('\''), "\"<script>.'...'.</script>\", enclosed by script tags, inside single-quotes, %s"),
+    (r'<script[^>]*>(?!.*<script).*"[^>"]*%s[^>"]*".*</script>', ('"'), "'<script>.\"...\".</script>', enclosed by script tags, inside double-quotes, %s"),
+    (r'<script[^>]*>(?!.*<script).*?%s.*?</script>', (), "\"<script>...</script>\", enclosed by script tags, %s"),
     (r'>[^<]*%s[^<]*(<|\Z)', ('<', '>'), "\">...<\", outside tags, %s"),
     (r"<[^>]*'[^>']*%s[^>']*'[^>]*>", ('\'',), "\"<.'...'.>\", inside tag, inside single-quotes, %s"),
-    (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',), "'<.\"...\".>', inside tag, inside duouble-quotes, %s"),
+    (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',), "'<.\"...\".>', inside tag, inside double-quotes, %s"),
     (r'<[^>]*%s[^>]*>', (), "\"<...>\", inside tag, %s")
 )
 
