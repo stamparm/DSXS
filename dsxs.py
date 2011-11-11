@@ -7,18 +7,19 @@ VERSION = "0.1f"
 AUTHOR  = "Miroslav Stampar (http://unconciousmind.blogspot.com | @stamparm)"
 LICENSE = "Public domain (FREE)"
 
-SMALLER_CHAR_POOL    = ('<', '>', ' ')                  # characters used for XSS tampering of parameter values (smaller set - for avoiding possible SQLi errors)
-LARGER_CHAR_POOL     = ('\'', '"', '>', '<', ' ')       # characters used for XSS tampering of parameter values (larger set)
-GET, POST            = "GET", "POST"                    # enumerator-like values used for marking current phase
-PREFIX_SUFFIX_LENGTH = 5                                # length of random prefix/suffix used in XSS tampering
-CONTEXT_DISPLAY_OFFSET = 10                             # offset outside the affected context for displaying in vulnerability report
-COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer" # optional HTTP header names
+SMALLER_CHAR_POOL    = ('<', '>')                               # characters used for XSS tampering of parameter values (smaller set - for avoiding possible SQLi errors)
+LARGER_CHAR_POOL     = ('\'', '"', '>', '<')                    # characters used for XSS tampering of parameter values (larger set)
+GET, POST            = "GET", "POST"                            # enumerator-like values used for marking current phase
+PREFIX_SUFFIX_LENGTH = 5                                        # length of random prefix/suffix used in XSS tampering
+CONTEXT_DISPLAY_OFFSET = 10                                     # offset outside the affected context for displaying in vulnerability report
+COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer"         # optional HTTP header names
+REGEX_SPECIAL_CHARS = ('\\', '*', '.', '+', '[', ']', ')', '(') # characters reserved for regular expressions
 
 XSS_PATTERNS = (                                        # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text")
     (r'\A[^<>]*%s[^<>]*\Z', ('<', '>'), "\"...\", pure text response, %s"),
     (r"<script[^>]*>(?!.*<script).*'[^>']*%s[^>']*'.*</script>", ('\''), "\"<script>.'...'.</script>\", enclosed by script tags, inside single-quotes, %s"),
     (r'<script[^>]*>(?!.*<script).*"[^>"]*%s[^>"]*".*</script>', ('"'), "'<script>.\"...\".</script>', enclosed by script tags, inside double-quotes, %s"),
-    (r'<script[^>]*>(?!.*<script).*?%s.*?</script>', (' ',), "\"<script>...</script>\", enclosed by script tags, %s"),
+    (r'<script[^>]*>(?!.*<script).*?%s.*?</script>', (), "\"<script>...</script>\", enclosed by script tags, %s"),
     (r'>[^<]*%s[^<]*(<|\Z)', ('<', '>'), "\">...<\", outside tags, %s"),
     (r"<[^>]*'[^>']*%s[^>']*'[^>]*>", ('\'',), "\"<.'...'.>\", inside tag, inside single-quotes, %s"),
     (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',), "'<.\"...\".>', inside tag, inside double-quotes, %s"),
@@ -60,7 +61,7 @@ def scan_page(url, data=None):
                         content = retrieve_content(tampered, data) if phase is GET else retrieve_content(url, tampered)
                         for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I | re.S):
                             for regex, condition, info in XSS_PATTERNS:
-                                context = re.search(regex % sample.group(1).replace("\\", "\\\\"), content, re.I | re.S)
+                                context = re.search(regex % reduce(lambda filtered, char: filtered.replace(char, "\\%s" % char), REGEX_SPECIAL_CHARS, sample.group(1)), content, re.I | re.S)
                                 if context and not found:
                                     if _contains(sample.group(1), condition):
                                         print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info % ("no filtering" if all([char in sample.group(1) for char in LARGER_CHAR_POOL]) else "some filtering"))
