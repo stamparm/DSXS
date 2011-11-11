@@ -3,12 +3,12 @@
 import cookielib, optparse, random, re, string, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code)"
-VERSION = "0.1e"
+VERSION = "0.1f"
 AUTHOR  = "Miroslav Stampar (http://unconciousmind.blogspot.com | @stamparm)"
 LICENSE = "Public domain (FREE)"
 
-SMALLER_CHAR_POOL    = ('<', '>')                       # characters used for XSS tampering of parameter values (smaller set - for avoiding possible SQLi errors)
-LARGER_CHAR_POOL     = ('\'', '"', '>', '<')            # characters used for XSS tampering of parameter values (larger set)
+SMALLER_CHAR_POOL    = ('<', '>', ' ')                  # characters used for XSS tampering of parameter values (smaller set - for avoiding possible SQLi errors)
+LARGER_CHAR_POOL     = ('\'', '"', '>', '<', ' ')       # characters used for XSS tampering of parameter values (larger set)
 GET, POST            = "GET", "POST"                    # enumerator-like values used for marking current phase
 PREFIX_SUFFIX_LENGTH = 5                                # length of random prefix/suffix used in XSS tampering
 CONTEXT_DISPLAY_OFFSET = 10                             # offset outside the affected context for displaying in vulnerability report
@@ -16,13 +16,13 @@ COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer" # optional HTTP header n
 
 XSS_PATTERNS = (                                        # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text")
     (r'\A[^<>]*%s[^<>]*\Z', ('<', '>'), "\"...\", pure text response, %s"),
-    (r"<script[^>]*>(?!.*<script).*'[^>']*%s[^>']*'.*</script>", ('\''), "\"<script>.'...'.</script>\", enclosed by script tags, inside single-quotes, %s"),
-    (r'<script[^>]*>(?!.*<script).*"[^>"]*%s[^>"]*".*</script>', ('"'), "'<script>.\"...\".</script>', enclosed by script tags, inside double-quotes, %s"),
-    (r'<script[^>]*>(?!.*<script).*?%s.*?</script>', (), "\"<script>...</script>\", enclosed by script tags, %s"),
+    (r"<script[^>]*>(?!.*<script).*'[^>\s']*%s[^>'\s]*'.*</script>", ('\''), "\"<script>.'...'.</script>\", enclosed by script tags, inside single-quotes, %s"),
+    (r'<script[^>]*>(?!.*<script).*"[^>\s"]*%s[^>"\s]*".*</script>', ('"'), "'<script>.\"...\".</script>', enclosed by script tags, inside double-quotes, %s"),
+    (r'<script[^>]*>(?!.*<script).*?%s.*?</script>', (' ',), "\"<script>...</script>\", enclosed by script tags, %s"),
     (r'>[^<]*%s[^<]*(<|\Z)', ('<', '>'), "\">...<\", outside tags, %s"),
-    (r"<[^>]*'[^>']*%s[^>']*'[^>]*>", ('\'',), "\"<.'...'.>\", inside tag, inside single-quotes, %s"),
-    (r'<[^>]*"[^>"]*%s[^>"]*"[^>]*>', ('"',), "'<.\"...\".>', inside tag, inside double-quotes, %s"),
-    (r'<[^>]*%s[^>]*>', (), "\"<...>\", inside tag, %s")
+    (r"<[^>]*'[^>'\s]*%s[^>'\s]*'[^>]*>", ('\'',), "\"<.'...'.>\", inside tag, inside single-quotes, %s"),
+    (r'<[^>]*"[^>"\s]*%s[^>"\s]*"[^>]*>', ('"',), "'<.\"...\".>', inside tag, inside double-quotes, %s"),
+    (r'<[^>]*%s[^>]*>', (' ',), "\"<...>\", inside tag, %s")
 )
 
 USER_AGENTS = (                                         # items used for picking random HTTP User-Agent header value
@@ -61,7 +61,7 @@ def scan_page(url, data=None):
                         for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I | re.S):
                             for regex, condition, info in XSS_PATTERNS:
                                 context = re.search(regex % sample.group(1).replace("\\", "\\\\"), content, re.I | re.S)
-                                if context:
+                                if context and not found:
                                     if _contains(sample.group(1), condition):
                                         print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info % ("no filtering" if all([char in sample.group(1) for char in LARGER_CHAR_POOL]) else "some filtering"))
                                         found = retval = True
