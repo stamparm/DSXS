@@ -15,7 +15,7 @@ CONTEXT_DISPLAY_OFFSET = 10                                     # offset outside
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer"         # optional HTTP header names
 REGEX_SPECIAL_CHARS = ('\\', '*', '.', '+', '[', ']', ')', '(') # characters reserved for regular expressions
 
-XSS_PATTERNS = (                                        # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text")
+XSS_PATTERNS = (                                                # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text")
     (r'\A[^<>]*%s[^<>]*\Z', ('<', '>'), "\"...\", pure text response, %s"),
     (r"<script[^>]*>(?!.*<script).*'[^>']*%s[^>']*'.*</script>", ('\''), "\"<script>.'...'.</script>\", enclosed by script tags, inside single-quotes, %s"),
     (r'<script[^>]*>(?!.*<script).*"[^>"]*%s[^>"]*".*</script>', ('"'), "'<script>.\"...\".</script>', enclosed by script tags, inside double-quotes, %s"),
@@ -26,7 +26,7 @@ XSS_PATTERNS = (                                        # each (pattern) item co
     (r'<[^>]*%s[^>]*>', (), "\"<...>\", inside tag, %s")
 )
 
-USER_AGENTS = (                                         # items used for picking random HTTP User-Agent header value
+USER_AGENTS = (                                                 # items used for picking random HTTP User-Agent header value
     "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_7_0; en-US) AppleWebKit/534.21 (KHTML, like Gecko) Chrome/11.0.678.0 Safari/534.21",
     "Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)",
     "Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20020508 Netscape6/6.1",
@@ -34,7 +34,7 @@ USER_AGENTS = (                                         # items used for picking
     "Opera/9.80 (X11; U; Linux i686; en-US; rv:1.9.2.3) Presto/2.2.15 Version/10.10"
 )
 
-_headers = None                                         # used for storing dictionary with optional header values
+_headers = {}                                                   # used for storing dictionary with optional header values
 
 def retrieve_content(url, data=None):
     try:
@@ -60,9 +60,9 @@ def scan_page(url, data=None):
                     if not found:
                         tampered = current.replace(match.group(0), "%s%s%s%s" % (match.group(1), prefix, "".join(random.sample(pool, len(pool))), suffix))
                         content = retrieve_content(tampered, data) if phase is GET else retrieve_content(url, tampered)
-                        for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I | re.S):
+                        for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I|re.S):
                             for regex, condition, info in XSS_PATTERNS:
-                                context = re.search(regex % reduce(lambda filtered, char: filtered.replace(char, "\\%s" % char), REGEX_SPECIAL_CHARS, sample.group(1)), content, re.I | re.S)
+                                context = re.search(regex % reduce(lambda filtered, char: filtered.replace(char, "\\%s" % char), REGEX_SPECIAL_CHARS, sample.group(1)), content, re.I|re.S)
                                 if context and not found:
                                     if _contains(sample.group(1), condition):
                                         print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info % ("no filtering" if all([char in sample.group(1) for char in LARGER_CHAR_POOL]) else "some filtering"))
@@ -75,10 +75,9 @@ def scan_page(url, data=None):
     return retval
 
 def init_options(proxy=None, cookie=None, ua=None, referer=None):
-    global _headers
     if proxy:
         urllib2.install_opener(urllib2.build_opener(urllib2.ProxyHandler({'http': proxy})))
-    _headers = dict(filter(lambda item: item[1], [(COOKIE, cookie), (UA, ua), (REFERER, referer)]))
+    _headers.update(dict(filter(lambda item: item[1], [(COOKIE, cookie), (UA, ua), (REFERER, referer)])))
 
 if __name__ == "__main__":
     print "%s #v%s\n by: %s\n" % (NAME, VERSION, AUTHOR)
