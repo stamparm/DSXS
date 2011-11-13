@@ -29,13 +29,14 @@ XSS_PATTERNS = (                                        # each (pattern) item co
 USER_AGENTS = (                                         # items used for picking random HTTP User-Agent header value
     "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_7_0; en-US) AppleWebKit/534.21 (KHTML, like Gecko) Chrome/11.0.678.0 Safari/534.21",
     "Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)",
+    "Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20020508 Netscape6/6.1",
+    "Mozilla/5.0 (X11;U; Linux i686; en-GB; rv:1.9.1) Gecko/20090624 Ubuntu/9.04 (jaunty) Firefox/3.5",
     "Opera/9.80 (X11; U; Linux i686; en-US; rv:1.9.2.3) Presto/2.2.15 Version/10.10"
 )
 
 _headers = None                                         # used for storing dictionary with optional header values
 
 def retrieve_content(url, data=None):
-    global _headers
     try:
         req = urllib2.Request("".join([url[i].replace(' ', '%20') if i > url.find('?') else url[i] for i in xrange(len(url))]), data, _headers)
         retval = urllib2.urlopen(req).read()
@@ -47,7 +48,7 @@ def scan_page(url, data=None):
     def _contains(content, chars):
         content = re.sub(r"\\[%s]" % "".join(chars), "", content, re.S) if chars else content
         return all([char in content for char in chars])
-    usable, retval = False, False
+    retval, usable = False, False
     try:
         for phase in (GET, POST):
             current = url if phase is GET else (data or "")
@@ -77,9 +78,7 @@ def init_options(proxy=None, cookie=None, ua=None, referer=None):
     global _headers
     if proxy:
         urllib2.install_opener(urllib2.build_opener(urllib2.ProxyHandler({'http': proxy})))
-    _headers = {COOKIE: cookie, UA: ua, REFERER: referer}
-    for empty in filter(None, [name if _headers[name] is None else None for name in _headers.keys()]):
-        del _headers[empty]
+    _headers = dict(filter(lambda item: item[1], [(COOKIE, cookie), (UA, ua), (REFERER, referer)]))
 
 if __name__ == "__main__":
     print "%s #v%s\n by: %s\n" % (NAME, VERSION, AUTHOR)
