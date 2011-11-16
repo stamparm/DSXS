@@ -52,7 +52,7 @@ def scan_page(url, data=None):
     try:
         for phase in (GET, POST):
             current = url if phase is GET else (data or "")
-            for match in re.finditer(r"((\A|[?&])(?P<parameter>\w+)=)(?P<value>[^&]+)", current):
+            for match in re.finditer(r"((\A|[?&])(?P<parameter>[\w\[\]]+)=)(?P<value>[^&]+)", current):
                 found, usable = False, True
                 print "* scanning %s parameter '%s'" % (phase, match.group("parameter"))
                 prefix, suffix = ["".join(random.sample(string.ascii_lowercase, PREFIX_SUFFIX_LENGTH)) for i in xrange(2)]
