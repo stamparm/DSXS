@@ -38,7 +38,7 @@ _headers = {}                                                   # used for stori
 
 def retrieve_content(url, data=None):
     try:
-        req = urllib2.Request("".join([url[i].replace(' ', '%20') if i > url.find('?') else url[i] for i in xrange(len(url))]), data, _headers)
+        req = urllib2.Request("".join(url[i].replace(' ', '%20') if i > url.find('?') else url[i] for i in xrange(len(url))), data, _headers)
         retval = urllib2.urlopen(req).read()
     except Exception, ex:
         retval = ex.read() if hasattr(ex, "read") else getattr(ex, "msg", str())
@@ -47,7 +47,7 @@ def retrieve_content(url, data=None):
 def scan_page(url, data=None):
     def _contains(content, chars):
         content = re.sub(r"\\[%s]" % "".join(chars), "", content, re.S) if chars else content
-        return all([char in content for char in chars])
+        return all(char in content for char in chars)
     retval, usable = False, False
     try:
         for phase in (GET, POST):
@@ -65,7 +65,7 @@ def scan_page(url, data=None):
                                 context = re.search(regex % reduce(lambda filtered, char: filtered.replace(char, "\\%s" % char), REGEX_SPECIAL_CHARS, sample.group(0)), content, re.I|re.S)
                                 if context and not found and sample.group(1).strip():
                                     if _contains(sample.group(1), condition):
-                                        print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info % ("no filtering" if all([char in sample.group(1) for char in LARGER_CHAR_POOL]) else "some filtering"))
+                                        print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info % ("no filtering" if all(char in sample.group(1) for char in LARGER_CHAR_POOL) else "some filtering"))
                                         found = retval = True
                                     break
         if not usable:
