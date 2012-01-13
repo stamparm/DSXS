@@ -50,3 +50,5 @@ Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code) #v0.1e
  (i) POST parameter 'foo' appears to be XSS vulnerable ("<.'...'.>", inside tag, inside single-quotes, some filtering))
 
 scan results: possible vulnerabilities found
+
+p.s. Python v2.6 or v2.7 is required for running this program
