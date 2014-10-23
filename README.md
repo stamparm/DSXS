@@ -22,37 +22,13 @@ Options:
 ```
 
 ```
-$ python dsxs.py -u http://zero.webappsecurity.com/login1.asp --data="login=test&password=test&graphicOption=minimum" --random-agent
-Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code) #v0.1e
+$ python dsxs.py -u "http://testphp.vulnweb.com/search.php?test=query" --data="searchFor=foobar"
+Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code) #v0.1f
  by: Miroslav Stampar (@stamparm)
 
-* scanning POST parameter 'login'
- (i) POST parameter 'login' appears to be XSS vulnerable (">...<", outside tags, some filtering))
-* scanning POST parameter 'password'
-* scanning POST parameter 'graphicOption'
-
-scan results: possible vulnerabilities found
-```
-
-```
-$ python dsxs.py -u http://xss.progphp.com/xss8.html?input=1 --random-agent
-Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code) #v0.1e
- by: Miroslav Stampar (@stamparm)
-
-* scanning GET parameter 'input'
- (i) GET parameter 'input' appears to be XSS vulnerable ("...", pure text response, no filtering))
-
-scan results: possible vulnerabilities found
-```
-
-```
-$ python dsxs.py -u http://xss.progphp.com/xss12.html --data="bar=secret&foo=test"
-Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code) #v0.1e
- by: Miroslav Stampar (@stamparm)
-
-* scanning POST parameter 'bar'
-* scanning POST parameter 'foo'
- (i) POST parameter 'foo' appears to be XSS vulnerable ("<.'...'.>", inside tag, inside single-quotes, some filtering))
+* scanning GET parameter 'test'
+* scanning POST parameter 'searchFor'
+ (i) POST parameter 'searchFor' appears to be XSS vulnerable (">...<", outside tags, no filtering)
 
 scan results: possible vulnerabilities found
 ```
