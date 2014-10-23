@@ -23,7 +23,7 @@ XSS_PATTERNS = (                                                # each (pattern)
     (r'>[^<]*%(chars)s[^<]*(<|\Z)', ('<', '>'), "\">.xss.<\", outside of tags, %(filtering)s filtering"),
     (r"<[^>]*'[^>']*%(chars)s[^>']*'[^>]*>", ('\'',), "\"<.'.xss.'.>\", inside the tag, inside single-quotes, %(filtering)s filtering"),
     (r'<[^>]*"[^>"]*%(chars)s[^>"]*"[^>]*>', ('"',), "'<.\".xss.\".>', inside the tag, inside double-quotes, %(filtering)s filtering"),
-    (r'<[^>]*%(chars)s[^>]*>', (), "\"<.xss.>\", inside the tag, %(filtering)s filtering")
+    (r'<[^>]*%(chars)s[^>]*>', (), "\"<.xss.>\", inside the tag, outside of quotes, %(filtering)s filtering")
 )
 
 USER_AGENTS = (                                                 # items used for picking random HTTP User-Agent header value
