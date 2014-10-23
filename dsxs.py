@@ -4,7 +4,7 @@ import cookielib, optparse, random, re, string, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code)"
 VERSION = "0.1f"
-AUTHOR  = "Miroslav Stampar (http://unconciousmind.blogspot.com | @stamparm)"
+AUTHOR  = "Miroslav Stampar (@stamparm)"
 LICENSE = "Public domain (FREE)"
 
 SMALLER_CHAR_POOL    = ('<', '>')                               # characters used for XSS tampering of parameter values (smaller set - for avoiding possible SQLi errors)
