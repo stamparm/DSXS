@@ -2,7 +2,7 @@
 
 import cookielib, optparse, random, re, string, urllib2, urlparse
 
-NAME    = "Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code)"
+NAME    = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)"
 VERSION = "0.1g"
 AUTHOR  = "Miroslav Stampar (@stamparm)"
 LICENSE = "Public domain (FREE)"
