@@ -4,7 +4,7 @@ As of optional settings it supports HTTP proxy together with HTTP header values 
 
 ```
 $ python dsxs.py -h
-Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code) #v0.1g
+Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.1g
  by: Miroslav Stampar (@stamparm)
 
 Usage: dsxs.py [options]
@@ -23,7 +23,7 @@ Options:
 
 ```
 $ python dsxs.py -u "http://testphp.vulnweb.com/search.php?test=query" --data="searchFor=foobar"
-Damn Small XSS Scanner (DSXS) < 100 LOC (Lines of Code) #v0.1g
+Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.1g
  by: Miroslav Stampar (@stamparm)
 
 * scanning GET parameter 'test'
