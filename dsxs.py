@@ -46,7 +46,7 @@ def retrieve_content(url, data=None):
 
 def scan_page(url, data=None):
     def _contains(content, chars):
-        content = re.sub(r"\\[%s]" % "".join(chars), "", content, re.S) if chars else content
+        content = re.sub(r"\\[%s]" % re.escape("".join(chars)), "", content, re.S) if chars else content
         return all(char in content for char in chars)
     retval, usable = False, False
     try:
@@ -62,7 +62,7 @@ def scan_page(url, data=None):
                         content = retrieve_content(tampered, data) if phase is GET else retrieve_content(url, tampered)
                         for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I|re.S):
                             for regex, condition, info in XSS_PATTERNS:
-                                context = re.search(regex % dict((("chars",reduce(lambda filtered, char: filtered.replace(char, "\\%s" % char), REGEX_SPECIAL_CHARS, sample.group(0))),)), content, re.I|re.S)
+                                context = re.search(regex % dict((("chars", reduce(lambda filtered, char: filtered.replace(char, "\\%s" % char), REGEX_SPECIAL_CHARS, sample.group(0))),)), content, re.I|re.S)
                                 if context and not found and sample.group(1).strip():
                                     if _contains(sample.group(1), condition):
                                         print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info % dict((("filtering", "no" if all(char in sample.group(1) for char in LARGER_CHAR_POOL) else "some"),)))
