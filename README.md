@@ -1,4 +1,4 @@
-Damn Small XSS Scanner (DSXS) is a fully functional XSS scanner (supporting GET and POST parameters) written in under 100 lines of code.
+**Damn Small XSS Scanner** (DSXS) is a fully functional XSS scanner (supporting GET and POST parameters) written in under 100 lines of code.
 
 As of optional settings it supports HTTP proxy together with HTTP header values "User-Agent", "Referer" and "Cookie".
 
