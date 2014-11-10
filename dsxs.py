@@ -36,7 +36,7 @@ USER_AGENTS = (                                                 # items used for
 
 _headers = {}                                                   # used for storing dictionary with optional header values
 
-def retrieve_content(url, data=None):
+def _retrieve_content(url, data=None):
     try:
         req = urllib2.Request("".join(url[i].replace(' ', '%20') if i > url.find('?') else url[i] for i in xrange(len(url))), data, _headers)
         retval = urllib2.urlopen(req).read()
@@ -59,7 +59,7 @@ def scan_page(url, data=None):
                 for pool in (LARGER_CHAR_POOL, SMALLER_CHAR_POOL):
                     if not found:
                         tampered = current.replace(match.group(0), "%s%s%s%s" % (match.group(1), prefix, "".join(random.sample(pool, len(pool))), suffix))
-                        content = retrieve_content(tampered, data) if phase is GET else retrieve_content(url, tampered)
+                        content = _retrieve_content(tampered, data) if phase is GET else _retrieve_content(url, tampered)
                         for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I|re.S):
                             for regex, condition, info in XSS_PATTERNS:
                                 context = re.search(regex % dict((("chars", reduce(lambda filtered, char: filtered.replace(char, "\\%s" % char), REGEX_SPECIAL_CHARS, sample.group(0))),)), content, re.I|re.S)
