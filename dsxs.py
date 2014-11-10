@@ -13,6 +13,7 @@ GET, POST            = "GET", "POST"                            # enumerator-lik
 PREFIX_SUFFIX_LENGTH = 5                                        # length of random prefix/suffix used in XSS tampering
 CONTEXT_DISPLAY_OFFSET = 10                                     # offset outside the affected context for displaying in vulnerability report
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer"         # optional HTTP header names
+TIMEOUT = 30                                                    # connection timeout in seconds
 
 XSS_PATTERNS = (                                                # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text")
     (r'\A[^<>]*%(chars)s[^<>]*\Z', ('<', '>'), "\".xss.\", pure text response, %(filtering)s filtering"),
@@ -38,7 +39,7 @@ _headers = {}                                                   # used for stori
 def _retrieve_content(url, data=None):
     try:
         req = urllib2.Request("".join(url[i].replace(' ', "%20") if i > url.find('?') else url[i] for i in xrange(len(url))), data, _headers)
-        retval = urllib2.urlopen(req).read()
+        retval = urllib2.urlopen(req, timeout=TIMEOUT).read()
     except Exception, ex:
         retval = ex.read() if hasattr(ex, "read") else getattr(ex, "msg", str())
     return retval or ""
