@@ -75,9 +75,9 @@ def scan_page(url, data=None):
     return retval
 
 def init_options(proxy=None, cookie=None, ua=None, referer=None):
-    if proxy:
-        urllib2.install_opener(urllib2.build_opener(urllib2.ProxyHandler({'http': proxy})))
-    _headers.update(dict(filter(lambda item: item[1], [(COOKIE, cookie), (UA, ua), (REFERER, referer)])))
+    global _headers
+    _headers = dict(filter(lambda _: _[1], ((COOKIE, cookie), (UA, ua), (REFERER, referer))))
+    urllib2.install_opener(urllib2.build_opener(urllib2.ProxyHandler({'http': proxy})) if proxy else None)
 
 if __name__ == "__main__":
     print "%s #v%s\n by: %s\n" % (NAME, VERSION, AUTHOR)
