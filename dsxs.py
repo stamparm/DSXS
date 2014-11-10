@@ -3,7 +3,7 @@
 import cookielib, optparse, random, re, string, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)"
-VERSION = "0.1g"
+VERSION = "0.1h"
 AUTHOR  = "Miroslav Stampar (@stamparm)"
 LICENSE = "Public domain (FREE)"
 
@@ -37,7 +37,7 @@ _headers = {}                                                   # used for stori
 
 def _retrieve_content(url, data=None):
     try:
-        req = urllib2.Request("".join(url[i].replace(' ', '%20') if i > url.find('?') else url[i] for i in xrange(len(url))), data, _headers)
+        req = urllib2.Request("".join(url[i].replace(' ', "%20") if i > url.find('?') else url[i] for i in xrange(len(url))), data, _headers)
         retval = urllib2.urlopen(req).read()
     except Exception, ex:
         retval = ex.read() if hasattr(ex, "read") else getattr(ex, "msg", str())
@@ -57,7 +57,7 @@ def scan_page(url, data=None):
                 prefix, suffix = ["".join(random.sample(string.ascii_lowercase, PREFIX_SUFFIX_LENGTH)) for i in xrange(2)]
                 for pool in (LARGER_CHAR_POOL, SMALLER_CHAR_POOL):
                     if not found:
-                        tampered = current.replace(match.group(0), "%s%s%s%s" % (match.group(1), prefix, "".join(random.sample(pool, len(pool))), suffix))
+                        tampered = current.replace(match.group(0), "%s%s%s%s%s" % (match.group(0), "'" if pool == LARGER_CHAR_POOL else "", prefix, "".join(random.sample(pool, len(pool))), suffix))
                         content = _retrieve_content(tampered, data) if phase is GET else _retrieve_content(url, tampered)
                         for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I|re.S):
                             for regex, condition, info in XSS_PATTERNS:
