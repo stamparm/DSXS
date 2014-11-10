@@ -13,7 +13,6 @@ GET, POST            = "GET", "POST"                            # enumerator-lik
 PREFIX_SUFFIX_LENGTH = 5                                        # length of random prefix/suffix used in XSS tampering
 CONTEXT_DISPLAY_OFFSET = 10                                     # offset outside the affected context for displaying in vulnerability report
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer"         # optional HTTP header names
-REGEX_SPECIAL_CHARS = ('\\', '*', '.', '+', '[', ']', ')', '(') # characters reserved for regular expressions
 
 XSS_PATTERNS = (                                                # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text")
     (r'\A[^<>]*%(chars)s[^<>]*\Z', ('<', '>'), "\".xss.\", pure text response, %(filtering)s filtering"),
@@ -62,7 +61,7 @@ def scan_page(url, data=None):
                         content = _retrieve_content(tampered, data) if phase is GET else _retrieve_content(url, tampered)
                         for sample in re.finditer("%s(.+?)%s" % (prefix, suffix), content, re.I|re.S):
                             for regex, condition, info in XSS_PATTERNS:
-                                context = re.search(regex % dict((("chars", reduce(lambda filtered, char: filtered.replace(char, "\\%s" % char), REGEX_SPECIAL_CHARS, sample.group(0))),)), content, re.I|re.S)
+                                context = re.search(regex % {"chars": re.escape(sample.group(0))}, content, re.I|re.S)
                                 if context and not found and sample.group(1).strip():
                                     if _contains(sample.group(1), condition):
                                         print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info % dict((("filtering", "no" if all(char in sample.group(1) for char in LARGER_CHAR_POOL) else "some"),)))
