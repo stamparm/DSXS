@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-
 import cookielib, optparse, random, re, string, urllib, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)"
-VERSION = "0.1l"
+VERSION = "0.1m"
 AUTHOR  = "Miroslav Stampar (@stamparm)"
 LICENSE = "Public domain (FREE)"
 
@@ -44,11 +43,13 @@ def _retrieve_content(url, data=None):
         retval = ex.read() if hasattr(ex, "read") else getattr(ex, "msg", str())
     return retval or ""
 
+def _contains(content, chars):
+    content = re.sub(r"\\[%s]" % re.escape("".join(chars)), "", content) if chars else content
+    return all(char in content for char in chars)
+
 def scan_page(url, data=None):
-    def _contains(content, chars):
-        content = re.sub(r"\\[%s]" % re.escape("".join(chars)), "", content) if chars else content
-        return all(char in content for char in chars)
     retval, usable = False, False
+    url, data = re.sub(r"=(&|\Z)", "=1\g<1>", url) if url else url, re.sub(r"=(&|\Z)", "=1\g<1>", data) if data else data
     try:
         for phase in (GET, POST):
             current = url if phase is GET else (data or "")
