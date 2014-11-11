@@ -76,7 +76,7 @@ def scan_page(url, data=None):
 
 def init_options(proxy=None, cookie=None, ua=None, referer=None):
     global _headers
-    _headers = dict(filter(lambda _: _[1], ((COOKIE, cookie), (UA, ua), (REFERER, referer))))
+    _headers = dict(filter(lambda _: _[1], ((COOKIE, cookie), (UA, ua or NAME), (REFERER, referer))))
     urllib2.install_opener(urllib2.build_opener(urllib2.ProxyHandler({'http': proxy})) if proxy else None)
 
 if __name__ == "__main__":
