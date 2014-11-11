@@ -3,7 +3,7 @@
 import cookielib, optparse, random, re, string, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)"
-VERSION = "0.1i"
+VERSION = "0.1j"
 AUTHOR  = "Miroslav Stampar (@stamparm)"
 LICENSE = "Public domain (FREE)"
 
@@ -17,9 +17,9 @@ TIMEOUT = 30                                                    # connection tim
 
 XSS_PATTERNS = (                                                # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text")
     (r'\A[^<>]*%(chars)s[^<>]*\Z', ('<', '>'), "\".xss.\", pure text response, %(filtering)s filtering"),
-    (r"<script[^>]*>(?!.*<script).*'[^>']*%(chars)s[^>']*'.*</script>", ('\''), "\"<script>.'.xss.'.</script>\", enclosed by <script> tags, inside single-quotes, %(filtering)s filtering"),
-    (r'<script[^>]*>(?!.*<script).*"[^>"]*%(chars)s[^>"]*".*</script>', ('"'), "'<script>.\".xss.\".</script>', enclosed by <script> tags, inside double-quotes, %(filtering)s filtering"),
-    (r'<script[^>]*>(?!.*<script).*?%(chars)s.*?</script>', (), "\"<script>.xss.</script>\", enclosed by <script> tags, %s"),
+    (r"<script[^>]*>[^<]*?'[^<']*%(chars)s[^<']*'[^<]*</script>", ('\''), "\"<script>.'.xss.'.</script>\", enclosed by <script> tags, inside single-quotes, %(filtering)s filtering"),
+    (r'<script[^>]*>[^<]*?"[^<"]*%(chars)s[^<"]*"[^<]*</script>', ('"'), "'<script>.\".xss.\".</script>', enclosed by <script> tags, inside double-quotes, %(filtering)s filtering"),
+    (r'<script[^>]*>[^<]*?%(chars)s[^<]*?</script>', (), "\"<script>.xss.</script>\", enclosed by <script> tags, %s"),
     (r'>[^<]*%(chars)s[^<]*(<|\Z)', ('<', '>'), "\">.xss.<\", outside of tags, %(filtering)s filtering"),
     (r"<[^>]*'[^>']*%(chars)s[^>']*'[^>]*>", ('\'',), "\"<.'.xss.'.>\", inside the tag, inside single-quotes, %(filtering)s filtering"),
     (r'<[^>]*"[^>"]*%(chars)s[^>"]*"[^>]*>', ('"',), "'<.\".xss.\".>', inside the tag, inside double-quotes, %(filtering)s filtering"),
