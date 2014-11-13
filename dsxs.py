@@ -2,12 +2,12 @@
 import cookielib, optparse, random, re, string, urllib, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)"
-VERSION = "0.1n"
+VERSION = "0.1o"
 AUTHOR  = "Miroslav Stampar (@stamparm)"
 LICENSE = "Public domain (FREE)"
 
 SMALLER_CHAR_POOL    = ('<', '>')                               # characters used for XSS tampering of parameter values (smaller set - for avoiding possible SQLi errors)
-LARGER_CHAR_POOL     = ('\'', '"', '>', '<')                    # characters used for XSS tampering of parameter values (larger set)
+LARGER_CHAR_POOL     = ('\'', '"', '>', '<', ';')               # characters used for XSS tampering of parameter values (larger set)
 GET, POST            = "GET", "POST"                            # enumerator-like values used for marking current phase
 PREFIX_SUFFIX_LENGTH = 5                                        # length of random prefix/suffix used in XSS tampering
 CONTEXT_DISPLAY_OFFSET = 10                                     # offset outside the affected context for displaying in vulnerability report
@@ -15,14 +15,14 @@ COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer"         # optional HTTP 
 TIMEOUT = 30                                                    # connection timeout in seconds
 
 XSS_PATTERNS = (                                                # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text")
-    (r'\A[^<>]*%(chars)s[^<>]*\Z', ('<', '>'), "\".xss.\", pure text response, %(filtering)s filtering"),
-    (r"<script[^>]*>[^<]*?'[^<']*%(chars)s[^<']*'[^<]*</script>", ('\''), "\"<script>.'.xss.'.</script>\", enclosed by <script> tags, inside single-quotes, %(filtering)s filtering"),
-    (r'<script[^>]*>[^<]*?"[^<"]*%(chars)s[^<"]*"[^<]*</script>', ('"'), "'<script>.\".xss.\".</script>', enclosed by <script> tags, inside double-quotes, %(filtering)s filtering"),
-    (r'<script[^>]*>[^<]*?%(chars)s[^<]*?</script>', (), "\"<script>.xss.</script>\", enclosed by <script> tags, %(filtering)s filtering"),
-    (r'>[^<]*%(chars)s[^<]*(<|\Z)', ('<', '>'), "\">.xss.<\", outside of tags, %(filtering)s filtering"),
+    (r"\A[^<>]*%(chars)s[^<>]*\Z", ('<', '>'), "\".xss.\", pure text response, %(filtering)s filtering"),
+    (r"<script[^>]*>[^<]*?'[^<']*%(chars)s[^<']*'[^<]*</script>", ('\'', ';'), "\"<script>.'.xss.'.</script>\", enclosed by <script> tags, inside single-quotes, %(filtering)s filtering"),
+    (r'<script[^>]*>[^<]*?"[^<"]*%(chars)s[^<"]*"[^<]*</script>', ('"', ';'), "'<script>.\".xss.\".</script>', enclosed by <script> tags, inside double-quotes, %(filtering)s filtering"),
+    (r"<script[^>]*>[^<]*?%(chars)s[^<]*?</script>", (';',), "\"<script>.xss.</script>\", enclosed by <script> tags, %(filtering)s filtering"),
+    (r">[^<]*%(chars)s[^<]*(<|\Z)", ('<', '>'), "\">.xss.<\", outside of tags, %(filtering)s filtering"),
     (r"<[^>]*'[^>']*%(chars)s[^>']*'[^>]*>", ('\'',), "\"<.'.xss.'.>\", inside the tag, inside single-quotes, %(filtering)s filtering"),
     (r'<[^>]*"[^>"]*%(chars)s[^>"]*"[^>]*>', ('"',), "'<.\".xss.\".>', inside the tag, inside double-quotes, %(filtering)s filtering"),
-    (r'<[^>]*%(chars)s[^>]*>', (), "\"<.xss.>\", inside the tag, outside of quotes, %(filtering)s filtering")
+    (r"<[^>]*%(chars)s[^>]*>", (), "\"<.xss.>\", inside the tag, outside of quotes, %(filtering)s filtering")
 )
 
 USER_AGENTS = (                                                 # items used for picking random HTTP User-Agent header value
