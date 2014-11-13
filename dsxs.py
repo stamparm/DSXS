@@ -14,7 +14,7 @@ CONTEXT_DISPLAY_OFFSET = 10                                     # offset outside
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer"         # optional HTTP header names
 TIMEOUT = 30                                                    # connection timeout in seconds
 
-XSS_PATTERNS = (                                                # each (pattern) item consists of ((context regex), (prerequisite unfiltered characters), "info text", "preprocessing removal regex")
+XSS_PATTERNS = (                                                # each (pattern) item consists of (r"context regex", (prerequisite unfiltered characters), "info text", r"content removal regex")
     (r"\A[^<>]*%(chars)s[^<>]*\Z", ('<', '>'), "\".xss.\", pure text response, %(filtering)s filtering", None),
     (r"<script[^>]*>[^<]*?'[^<']*%(chars)s[^<']*'[^<]*</script>", ('\'', ';'), "\"<script>.'.xss.'.</script>\", enclosed by <script> tags, inside single-quotes, %(filtering)s filtering", None),
     (r'<script[^>]*>[^<]*?"[^<"]*%(chars)s[^<"]*"[^<]*</script>', ('"', ';'), "'<script>.\".xss.\".</script>', enclosed by <script> tags, inside double-quotes, %(filtering)s filtering", None),
@@ -62,8 +62,8 @@ def scan_page(url, data=None):
                         tampered = current.replace(match.group(0), "%s%s" % (match.group(0), urllib.quote("%s%s%s%s" % ("'" if pool == LARGER_CHAR_POOL else "", prefix, "".join(random.sample(pool, len(pool))), suffix))))
                         content = (_retrieve_content(tampered, data) if phase is GET else _retrieve_content(url, tampered)).replace("%s%s" % ("'" if pool == LARGER_CHAR_POOL else "", prefix), prefix)
                         for sample in re.finditer("%s([^ ]+?)%s" % (prefix, suffix), content, re.I):
-                            for regex, condition, info, removal_regex in XSS_PATTERNS:
-                                context = re.search(regex % {"chars": re.escape(sample.group(0))}, re.sub(removal_regex or "", "", content), re.I)
+                            for regex, condition, info, content_removal_regex in XSS_PATTERNS:
+                                context = re.search(regex % {"chars": re.escape(sample.group(0))}, re.sub(content_removal_regex or "", "", content), re.I)
                                 if context and not found and sample.group(1).strip():
                                     if _contains(sample.group(1), condition):
                                         print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info % dict((("filtering", "no" if all(char in sample.group(1) for char in LARGER_CHAR_POOL) else "some"),)))
