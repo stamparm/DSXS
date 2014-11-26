@@ -2,7 +2,7 @@
 import cookielib, optparse, random, re, string, urllib, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)"
-VERSION = "0.2a"
+VERSION = "0.2b"
 AUTHOR  = "Miroslav Stampar (@stamparm)"
 LICENSE = "Public domain (FREE)"
 
@@ -27,8 +27,8 @@ REGULAR_PATTERNS = (                                            # each (regular 
 )
 
 DOM_PATTERNS = (                                                # each (dom pattern) item consists of r"recognition regex"
-    r"var\s*(\w+)\s*=[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)[^;]*;[^<]*(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*\1",
-    r"(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)",
+    r"<script[^>]*>[^<]*?var\s*(\w+)\s*=[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)[^;]*;[^<]*(document\.write(ln)?\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*\1",
+    r"<script[^>]*>[^<]*?(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)",
 )
 
 _headers = {}                                                   # used for storing dictionary with optional header values
