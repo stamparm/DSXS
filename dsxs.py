@@ -14,7 +14,7 @@ CONTEXT_DISPLAY_OFFSET = 10                                     # offset outside
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer"         # optional HTTP header names
 TIMEOUT = 30                                                    # connection timeout in seconds
 
-REGULAR_PATTERNS = (                                            # each (pattern) item consists of (r"context regex", (prerequisite unfiltered characters), "info text", r"content removal regex")
+REGULAR_PATTERNS = (                                            # each (regular pattern) item consists of (r"context regex", (prerequisite unfiltered characters), "info text", r"content removal regex")
     (r"\A[^<>]*%(chars)s[^<>]*\Z", ('<', '>'), "\".xss.\", pure text response, %(filtering)s filtering", None),
     (r"<!--[^>]*%(chars)s|%(chars)s[^<]*-->", ('<', '>'), "\"<!--.'.xss.'.-->\", inside the comment, %(filtering)s filtering", None),
     (r"(?s)<script[^>]*>[^<]*?'[^<']*%(chars)s|%(chars)s[^<']*'[^<]*</script>", ('\'', ';'), "\"<script>.'.xss.'.</script>\", enclosed by <script> tags, inside single-quotes, %(filtering)s filtering", None),
@@ -26,7 +26,7 @@ REGULAR_PATTERNS = (                                            # each (pattern)
     (r"<[^>]*%(chars)s[^>]*>", (), "\"<.xss.>\", inside the tag, outside of quotes, %(filtering)s filtering", r"(?s)<script.+?</script>|<!--.*?-->"),
 )
 
-DOM_PATTERNS = (                                                # each (pattern) item consists of (r"recognition regex")
+DOM_PATTERNS = (                                                # each (dom pattern) item consists of r"recognition regex"
     r"var (\w+)\s*=[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)[^;]*;[^<]*(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*\1",
     r"(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)",
 )
