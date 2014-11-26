@@ -27,7 +27,7 @@ REGULAR_PATTERNS = (                                            # each (regular 
 )
 
 DOM_PATTERNS = (                                                # each (dom pattern) item consists of r"recognition regex"
-    r"var (\w+)\s*=[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)[^;]*;[^<]*(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*\1",
+    r"var\s*(\w+)\s*=[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)[^;]*;[^<]*(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*\1",
     r"(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)",
 )
 
