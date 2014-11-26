@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 import cookielib, optparse, random, re, string, urllib, urllib2, urlparse
 
-NAME    = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)"
-VERSION = "0.2d"
-AUTHOR  = "Miroslav Stampar (@stamparm)"
-LICENSE = "Public domain (FREE)"
+NAME, VERSION, AUTHOR, LICENSE = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)", "0.2e", "Miroslav Stampar (@stamparm)", "Public domain (FREE)"
 
 SMALLER_CHAR_POOL    = ('<', '>')                                                           # characters used for XSS tampering of parameter values (smaller set - for avoiding possible SQLi errors)
 LARGER_CHAR_POOL     = ('\'', '"', '>', '<', ';')                                           # characters used for XSS tampering of parameter values (larger set)
@@ -27,8 +24,8 @@ REGULAR_PATTERNS = (                                                            
 )
 
 DOM_PATTERNS = (                                                                            # each (dom pattern) item consists of r"recognition regex"
-    r"<script[^>]*>[^<]*?var\s*(\w+)\s*=[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)[^;]*;[^<]*(document\.write(ln)?\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\(|location\.(replace|assign)\(|setAttribute\()[^;]*\1",
-    r"<script[^>]*>[^<]*?(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\(|location\.(replace|assign)\(|setAttribute\()[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)",
+    r"(?s)<script[^>]*>[^<]*?var\s*(\w+)\s*=[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)[^;]*;[^<]*(document\.write(ln)?\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\(|location\.(replace|assign)\(|setAttribute\()[^;]*\1.*?</script>",
+    r"(?s)<script[^>]*>[^<]*?(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\(|location\.(replace|assign)\(|setAttribute\()[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location).*?</script>",
 )
 
 _headers = {}                                                                               # used for storing dictionary with optional header values
@@ -49,8 +46,10 @@ def scan_page(url, data=None):
     retval, usable = False, False
     url, data = re.sub(r"=(&|\Z)", "=1\g<1>", url) if url else url, re.sub(r"=(&|\Z)", "=1\g<1>", data) if data else data
     original = re.sub(DOM_FILTER_REGEX, "", _retrieve_content(url, data))
-    if any(re.search(_, original) for _ in DOM_PATTERNS):
+    dom = max(re.search(_, original) for _ in DOM_PATTERNS)
+    if dom:
         print " (i) page itself appears to be XSS vulnerable (DOM)"
+        print "  (o) ...%s..." % dom.group(0)
         retval = True
     try:
         for phase in (GET, POST):
