@@ -6,7 +6,7 @@ As of optional settings it supports HTTP proxy together with HTTP header values 
 
 ```
 $ python dsxs.py -h
-Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2a
+Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2d
  by: Miroslav Stampar (@stamparm)
 
 Usage: dsxs.py [options]
@@ -24,7 +24,7 @@ Options:
 
 ```
 $ python dsxs.py -u "http://testphp.vulnweb.com/search.php?test=query" --data="searchFor=foobar"
-Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2a
+Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2d
  by: Miroslav Stampar (@stamparm)
 
 * scanning GET parameter 'test'
@@ -35,11 +35,15 @@ scan results: possible vulnerabilities found
 ```
 
 ```
-$ python dsxs.py -u "http://public-firing-range.appspot.com/address/location.hash/documentwrite"
-Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2a
+$ python dsxs.py -u "http://public-firing-range.appspot.com/address/location.hash/replace"
+Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2d
  by: Miroslav Stampar (@stamparm)
 
  (i) page itself appears to be XSS vulnerable (DOM)
+  (o) ...<script>
+      var payload = window.location.hash.substr(1);location.replace(payload); 
+
+    </script>...
  (x) no usable GET/POST parameters found
 
 scan results: possible vulnerabilities found
