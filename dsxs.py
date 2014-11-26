@@ -48,8 +48,8 @@ def _contains(content, chars):
 def scan_page(url, data=None):
     retval, usable = False, False
     url, data = re.sub(r"=(&|\Z)", "=1\g<1>", url) if url else url, re.sub(r"=(&|\Z)", "=1\g<1>", data) if data else data
-    content = re.sub(r"(?s)<!--.*?-->|\bescape\([^)]+\)", "", _retrieve_content(url, data))
-    if any(re.search(_, content) for _ in DOM_PATTERNS):
+    original = re.sub(r"(?s)<!--.*?-->|\bescape\([^)]+\)|==\s*[\w.]+", "", _retrieve_content(url, data))
+    if any(re.search(_, original) for _ in DOM_PATTERNS):
         print " (i) page itself appears to be XSS vulnerable (DOM)"
         retval = True
     try:
