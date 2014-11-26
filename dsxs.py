@@ -2,19 +2,19 @@
 import cookielib, optparse, random, re, string, urllib, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)"
-VERSION = "0.2b"
+VERSION = "0.2c"
 AUTHOR  = "Miroslav Stampar (@stamparm)"
 LICENSE = "Public domain (FREE)"
 
-SMALLER_CHAR_POOL    = ('<', '>')                               # characters used for XSS tampering of parameter values (smaller set - for avoiding possible SQLi errors)
-LARGER_CHAR_POOL     = ('\'', '"', '>', '<', ';')               # characters used for XSS tampering of parameter values (larger set)
-GET, POST            = "GET", "POST"                            # enumerator-like values used for marking current phase
-PREFIX_SUFFIX_LENGTH = 5                                        # length of random prefix/suffix used in XSS tampering
-CONTEXT_DISPLAY_OFFSET = 10                                     # offset outside the affected context for displaying in vulnerability report
-COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer"         # optional HTTP header names
-TIMEOUT = 30                                                    # connection timeout in seconds
+SMALLER_CHAR_POOL    = ('<', '>')                                                           # characters used for XSS tampering of parameter values (smaller set - for avoiding possible SQLi errors)
+LARGER_CHAR_POOL     = ('\'', '"', '>', '<', ';')                                           # characters used for XSS tampering of parameter values (larger set)
+GET, POST            = "GET", "POST"                                                        # enumerator-like values used for marking current phase
+PREFIX_SUFFIX_LENGTH = 5                                                                    # length of random prefix/suffix used in XSS tampering
+COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer"                                     # optional HTTP header names
+TIMEOUT = 30                                                                                # connection timeout in seconds
+DOM_FILTER_REGEX = r"(?s)<!--.*?-->|\bescape\([^)]+\)|\([^)]+==[^(]+\)|\"[^\"]+\"|'[^']+'"  # filtering regex used before DOM XSS search
 
-REGULAR_PATTERNS = (                                            # each (regular pattern) item consists of (r"context regex", (prerequisite unfiltered characters), "info text", r"content removal regex")
+REGULAR_PATTERNS = (                                                                        # each (regular pattern) item consists of (r"context regex", (prerequisite unfiltered characters), "info text", r"content removal regex")
     (r"\A[^<>]*%(chars)s[^<>]*\Z", ('<', '>'), "\".xss.\", pure text response, %(filtering)s filtering", None),
     (r"<!--[^>]*%(chars)s|%(chars)s[^<]*-->", ('<', '>'), "\"<!--.'.xss.'.-->\", inside the comment, %(filtering)s filtering", None),
     (r"(?s)<script[^>]*>[^<]*?'[^<']*%(chars)s|%(chars)s[^<']*'[^<]*</script>", ('\'', ';'), "\"<script>.'.xss.'.</script>\", enclosed by <script> tags, inside single-quotes, %(filtering)s filtering", None),
@@ -26,12 +26,12 @@ REGULAR_PATTERNS = (                                            # each (regular 
     (r"<[^>]*%(chars)s[^>]*>", (), "\"<.xss.>\", inside the tag, outside of quotes, %(filtering)s filtering", r"(?s)<script.+?</script>|<!--.*?-->"),
 )
 
-DOM_PATTERNS = (                                                # each (dom pattern) item consists of r"recognition regex"
+DOM_PATTERNS = (                                                                            # each (dom pattern) item consists of r"recognition regex"
     r"<script[^>]*>[^<]*?var\s*(\w+)\s*=[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)[^;]*;[^<]*(document\.write(ln)?\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*\1",
     r"<script[^>]*>[^<]*?(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)",
 )
 
-_headers = {}                                                   # used for storing dictionary with optional header values
+_headers = {}                                                                               # used for storing dictionary with optional header values
 
 def _retrieve_content(url, data=None):
     try:
@@ -48,7 +48,7 @@ def _contains(content, chars):
 def scan_page(url, data=None):
     retval, usable = False, False
     url, data = re.sub(r"=(&|\Z)", "=1\g<1>", url) if url else url, re.sub(r"=(&|\Z)", "=1\g<1>", data) if data else data
-    original = re.sub(r"(?s)<!--.*?-->|\bescape\([^)]+\)|\([^)]+==[^(]+\)", "", _retrieve_content(url, data))
+    original = re.sub(DOM_FILTER_REGEX, "", _retrieve_content(url, data))
     if any(re.search(_, original) for _ in DOM_PATTERNS):
         print " (i) page itself appears to be XSS vulnerable (DOM)"
         retval = True
