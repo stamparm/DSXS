@@ -2,7 +2,7 @@
 import cookielib, optparse, random, re, string, urllib, urllib2, urlparse
 
 NAME    = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)"
-VERSION = "0.1q"
+VERSION = "0.2a"
 AUTHOR  = "Miroslav Stampar (@stamparm)"
 LICENSE = "Public domain (FREE)"
 
@@ -14,7 +14,7 @@ CONTEXT_DISPLAY_OFFSET = 10                                     # offset outside
 COOKIE, UA, REFERER = "Cookie", "User-Agent", "Referer"         # optional HTTP header names
 TIMEOUT = 30                                                    # connection timeout in seconds
 
-XSS_PATTERNS = (                                                # each (pattern) item consists of (r"context regex", (prerequisite unfiltered characters), "info text", r"content removal regex")
+REGULAR_PATTERNS = (                                            # each (pattern) item consists of (r"context regex", (prerequisite unfiltered characters), "info text", r"content removal regex")
     (r"\A[^<>]*%(chars)s[^<>]*\Z", ('<', '>'), "\".xss.\", pure text response, %(filtering)s filtering", None),
     (r"<!--[^>]*%(chars)s|%(chars)s[^<]*-->", ('<', '>'), "\"<!--.'.xss.'.-->\", inside the comment, %(filtering)s filtering", None),
     (r"(?s)<script[^>]*>[^<]*?'[^<']*%(chars)s|%(chars)s[^<']*'[^<]*</script>", ('\'', ';'), "\"<script>.'.xss.'.</script>\", enclosed by <script> tags, inside single-quotes, %(filtering)s filtering", None),
@@ -23,14 +23,12 @@ XSS_PATTERNS = (                                                # each (pattern)
     (r">[^<]*%(chars)s[^<]*(<|\Z)", ('<', '>'), "\">.xss.<\", outside of tags, %(filtering)s filtering", r"(?s)<script.+?</script>|<!--.*?-->"),
     (r"<[^>]*'[^>']*%(chars)s[^>']*'[^>]*>", ('\'',), "\"<.'.xss.'.>\", inside the tag, inside single-quotes, %(filtering)s filtering", r"(?s)<script.+?</script>|<!--.*?-->"),
     (r'<[^>]*"[^>"]*%(chars)s[^>"]*"[^>]*>', ('"',), "'<.\".xss.\".>', inside the tag, inside double-quotes, %(filtering)s filtering", r"(?s)<script.+?</script>|<!--.*?-->"),
-    (r"<[^>]*%(chars)s[^>]*>", (), "\"<.xss.>\", inside the tag, outside of quotes, %(filtering)s filtering", r"(?s)<script.+?</script>|<!--.*?-->")
+    (r"<[^>]*%(chars)s[^>]*>", (), "\"<.xss.>\", inside the tag, outside of quotes, %(filtering)s filtering", r"(?s)<script.+?</script>|<!--.*?-->"),
 )
 
-USER_AGENTS = (                                                 # items used for picking random HTTP User-Agent header value
-    "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_7_0; en-US) AppleWebKit/534.21 (KHTML, like Gecko) Chrome/11.0.678.0 Safari/534.21",
-    "Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)",
-    "Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20020508 Netscape6/6.1",
-    "Mozilla/5.0 (X11;U; Linux i686; en-GB; rv:1.9.1) Gecko/20090624 Ubuntu/9.04 (jaunty) Firefox/3.5",
+DOM_PATTERNS = (                                                # each (pattern) item consists of (r"recognition regex")
+    r"var (\w+)\s*=[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)[^;]*;[^<]*(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*\1",
+    r"(document\.write\(|\.innerHTML\s*=|eval\(|setTimeout\(|setInterval\()('[^']+')?[^;]*(document\.(location|URL|documentURI)|location\.(href|search)|window\.location)",
 )
 
 _headers = {}                                                   # used for storing dictionary with optional header values
@@ -50,6 +48,9 @@ def _contains(content, chars):
 def scan_page(url, data=None):
     retval, usable = False, False
     url, data = re.sub(r"=(&|\Z)", "=1\g<1>", url) if url else url, re.sub(r"=(&|\Z)", "=1\g<1>", data) if data else data
+    content = _retrieve_content(url, data)
+    if any(re.search(_, content) for _ in DOM_PATTERNS):
+        print " (i) page itself appears to be XSS vulnerable (DOM)"
     try:
         for phase in (GET, POST):
             current = url if phase is GET else (data or "")
@@ -87,12 +88,11 @@ if __name__ == "__main__":
     parser.add_option("--data", dest="data", help="POST data (e.g. \"query=test\")")
     parser.add_option("--cookie", dest="cookie", help="HTTP Cookie header value")
     parser.add_option("--user-agent", dest="ua", help="HTTP User-Agent header value")
-    parser.add_option("--random-agent", dest="randomAgent", action="store_true", help="Use randomly selected HTTP User-Agent header value")
     parser.add_option("--referer", dest="referer", help="HTTP Referer header value")
     parser.add_option("--proxy", dest="proxy", help="HTTP proxy address (e.g. \"http://127.0.0.1:8080\")")
     options, _ = parser.parse_args()
     if options.url:
-        init_options(options.proxy, options.cookie, options.ua if not options.randomAgent else random.choice(USER_AGENTS), options.referer)
+        init_options(options.proxy, options.cookie, options.ua, options.referer)
         result = scan_page(options.url if options.url.startswith("http") else "http://%s" % options.url, options.data)
         print "\nscan results: %s vulnerabilities found" % ("possible" if result else "no")
     else:
