@@ -4,7 +4,7 @@ As of optional settings it supports HTTP proxy together with HTTP header values 
 
 ```
 $ python dsxs.py -h
-Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.1g
+Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2a
  by: Miroslav Stampar (@stamparm)
 
 Usage: dsxs.py [options]
@@ -16,19 +16,29 @@ Options:
   --data=DATA        POST data (e.g. "query=test")
   --cookie=COOKIE    HTTP Cookie header value
   --user-agent=UA    HTTP User-Agent header value
-  --random-agent     Use randomly selected HTTP User-Agent header value
   --referer=REFERER  HTTP Referer header value
   --proxy=PROXY      HTTP proxy address (e.g. "http://127.0.0.1:8080")
 ```
 
 ```
 $ python dsxs.py -u "http://testphp.vulnweb.com/search.php?test=query" --data="searchFor=foobar"
-Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.1g
+Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2a
  by: Miroslav Stampar (@stamparm)
 
 * scanning GET parameter 'test'
 * scanning POST parameter 'searchFor'
  (i) POST parameter 'searchFor' appears to be XSS vulnerable (">.xss.<", outside of tags, no filtering)
+
+scan results: possible vulnerabilities found
+```
+
+```
+$ python dsxs.py -u "http://public-firing-range.appspot.com/address/location.hash/documentwrite"
+Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2a
+ by: Miroslav Stampar (@stamparm)
+
+ (i) page itself appears to be XSS vulnerable (DOM)
+ (x) no usable GET/POST parameters found
 
 scan results: possible vulnerabilities found
 ```
