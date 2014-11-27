@@ -2,7 +2,7 @@
 
 **Damn Small XSS Scanner** (DSXS) is a fully functional [Cross-site scripting](https://en.wikipedia.org/wiki/Cross-site_scripting) vulnerability scanner (supporting GET and POST parameters) written in under 100 lines of code.
 
-![Vulnerable](http://i.imgur.com/8xgtGjU.png)
+![Vulnerable](http://i.imgur.com/hadlgS0.png)
 
 As of optional settings it supports HTTP proxy together with HTTP header values "User-Agent", "Referer" and "Cookie".
 
