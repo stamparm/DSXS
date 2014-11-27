@@ -29,19 +29,22 @@ Options:
 ```
 
 ```
-$ python dsxs.py -u "http://testphp.vulnweb.com/search.php?test=query" --data="searchFor=foobar"
+$ python dsxs.py -u "http://testphp.vulnweb.com/search.php?test=query" --data="s
+earchFor=foobar"
 Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2d
  by: Miroslav Stampar (@stamparm)
 
 * scanning GET parameter 'test'
 * scanning POST parameter 'searchFor'
- (i) POST parameter 'searchFor' appears to be XSS vulnerable (">.xss.<", outside of tags, no filtering)
+ (i) POST parameter 'searchFor' appears to be XSS vulnerable (">.xss.<", outside
+ of tags, no filtering)
 
 scan results: possible vulnerabilities found
 ```
 
 ```
-$ python dsxs.py -u "http://public-firing-range.appspot.com/address/location.hash/replace"
+$ python dsxs.py -u "http://public-firing-range.appspot.com/address/location.has
+h/replace"
 Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2d
  by: Miroslav Stampar (@stamparm)
 
@@ -57,4 +60,5 @@ scan results: possible vulnerabilities found
 
 Requirements
 ----
+
 Python v2.6 or v2.7 is required for running this program
