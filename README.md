@@ -1,10 +1,14 @@
-![Logo](https://i.imgur.com/ycxxhau.png)
+Damn Small XSS Scanner
+=========
 
 **Damn Small XSS Scanner** (DSXS) is a fully functional [Cross-site scripting](https://en.wikipedia.org/wiki/Cross-site_scripting) vulnerability scanner (supporting GET and POST parameters) written in under 100 lines of code.
 
 ![Vulnerable](http://i.imgur.com/hadlgS0.png)
 
 As of optional settings it supports HTTP proxy together with HTTP header values "User-Agent", "Referer" and "Cookie".
+
+Sample runs
+----
 
 ```
 $ python dsxs.py -h
@@ -51,4 +55,6 @@ Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2d
 scan results: possible vulnerabilities found
 ```
 
-p.s. Python v2.6 or v2.7 is required for running this program
+Requirements
+----
+Python v2.6 or v2.7 is required for running this program
