@@ -63,7 +63,7 @@ def scan_page(url, data=None):
                         tampered = current.replace(match.group(0), "%s%s" % (match.group(0), urllib.quote("%s%s%s%s" % ("'" if pool == LARGER_CHAR_POOL else "", prefix, "".join(random.sample(pool, len(pool))), suffix))))
                         content = (_retrieve_content(tampered, data) if phase is GET else _retrieve_content(url, tampered)).replace("%s%s" % ("'" if pool == LARGER_CHAR_POOL else "", prefix), prefix)
                         for sample in re.finditer("%s([^ ]+?)%s" % (prefix, suffix), content, re.I):
-                            for regex, condition, info, content_removal_regex in XSS_PATTERNS:
+                            for regex, condition, info, content_removal_regex in REGULAR_PATTERNS:
                                 context = re.search(regex % {"chars": re.escape(sample.group(0))}, re.sub(content_removal_regex or "", "", content), re.I)
                                 if context and not found and sample.group(1).strip():
                                     if _contains(sample.group(1), condition):
