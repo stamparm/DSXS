@@ -62,6 +62,7 @@ def scan_page(url, data=None):
                     if not found:
                         tampered = current.replace(match.group(0), "%s%s" % (match.group(0), urllib.quote("%s%s%s%s" % ("'" if pool == LARGER_CHAR_POOL else "", prefix, "".join(random.sample(pool, len(pool))), suffix))))
                         content = (_retrieve_content(tampered, data) if phase is GET else _retrieve_content(url, tampered)).replace("%s%s" % ("'" if pool == LARGER_CHAR_POOL else "", prefix), prefix)
+                        content = re.sub(r"(<\w[^>]*%s[^\n/]*?)\\(['\"][^\n/]*?%s)" % (prefix, suffix), r"\g<1>\g<2>", content)  # patch for special case (backslash escaping quotes inside tags)
                         for sample in re.finditer("%s([^ ]+?)%s" % (prefix, suffix), content, re.I):
                             for regex, condition, info, content_removal_regex in REGULAR_PATTERNS:
                                 context = re.search(regex % {"chars": re.escape(sample.group(0))}, re.sub(content_removal_regex or "", "", content), re.I)
