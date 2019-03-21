@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 import cookielib, optparse, random, re, string, urllib, urllib2, urlparse
 
 NAME, VERSION, AUTHOR, LICENSE = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)", "0.2h", "Miroslav Stampar (@stamparm)", "Public domain (FREE)"
