@@ -1,4 +1,4 @@
-Damn Small XSS Scanner [![Python 2.6|2.7](https://img.shields.io/badge/python-2.6|2.7-yellow.svg)](https://www.python.org/) [![License](https://img.shields.io/badge/license-Public_domain-red.svg)](https://wiki.creativecommons.org/wiki/Public_domain)
+Damn Small XSS Scanner [![Python 3.x](https://img.shields.io/badge/python-3.x-yellow.svg)](https://www.python.org/) [![License](https://img.shields.io/badge/license-Public_domain-red.svg)](https://wiki.creativecommons.org/wiki/Public_domain)
 =========
 
 **Damn Small XSS Scanner** (DSXS) is a fully functional [Cross-site scripting](https://en.wikipedia.org/wiki/Cross-site_scripting) vulnerability scanner (supporting GET and POST parameters) written in under 100 lines of code.
@@ -29,9 +29,9 @@ Options:
 ```
 
 ```
-$ python dsxs.py -u "http://testphp.vulnweb.com/search.php?test=query" --data="s
+$ python3 dsxs.py -u "http://testphp.vulnweb.com/search.php?test=query" --data="s
 earchFor=foobar"
-Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2d
+Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.3a
  by: Miroslav Stampar (@stamparm)
 
 * scanning GET parameter 'test'
@@ -43,9 +43,9 @@ scan results: possible vulnerabilities found
 ```
 
 ```
-$ python dsxs.py -u "http://public-firing-range.appspot.com/address/location.has
+$ python3 dsxs.py -u "http://public-firing-range.appspot.com/address/location.has
 h/replace"
-Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2d
+Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.3a
  by: Miroslav Stampar (@stamparm)
 
  (i) page itself appears to be XSS vulnerable (DOM)
@@ -61,4 +61,4 @@ scan results: possible vulnerabilities found
 Requirements
 ----
 
-[Python](http://www.python.org/download/) version **2.6.x** or **2.7.x** is required for running this program.
+[Python](http://www.python.org/download/) version **3.x** is required for running this program.
