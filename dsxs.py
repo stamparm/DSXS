@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
-import cookielib, optparse, random, re, string, urllib, urllib2, urlparse
+#!/usr/bin/python3
+import optparse, random, re, string, urllib, urllib.parse, urllib.request
 
-NAME, VERSION, AUTHOR, LICENSE = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)", "0.2h", "Miroslav Stampar (@stamparm)", "Public domain (FREE)"
+NAME, VERSION, AUTHOR, LICENSE = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)", "0.3a", "Miroslav Stampar (@stamparm)", "Public domain (FREE)"
 
 SMALLER_CHAR_POOL    = ('<', '>')                                                           # characters used for XSS tampering of parameter values (smaller set - for avoiding possible SQLi errors)
 LARGER_CHAR_POOL     = ('\'', '"', '>', '<', ';')                                           # characters used for XSS tampering of parameter values (larger set)
@@ -32,11 +32,11 @@ _headers = {}                                                                   
 
 def _retrieve_content(url, data=None):
     try:
-        req = urllib2.Request("".join(url[i].replace(' ', "%20") if i > url.find('?') else url[i] for i in xrange(len(url))), data, _headers)
-        retval = urllib2.urlopen(req, timeout=TIMEOUT).read()
-    except Exception, ex:
+        req = urllib.request.Request("".join(url[i].replace(' ', "%20") if i > url.find('?') else url[i] for i in range(len(url))), data.encode("utf-8", "ignore") if data else None, _headers)
+        retval = urllib.request.urlopen(req, timeout=TIMEOUT).read()
+    except Exception as ex:
         retval = ex.read() if hasattr(ex, "read") else getattr(ex, "msg", str())
-    return retval or ""
+    return (retval.decode("utf-8", "ignore") if hasattr(retval, "decode") else "") or ""
 
 def _contains(content, chars):
     content = re.sub(r"\\[%s]" % re.escape("".join(chars)), "", content) if chars else content
@@ -46,21 +46,21 @@ def scan_page(url, data=None):
     retval, usable = False, False
     url, data = re.sub(r"=(&|\Z)", "=1\g<1>", url) if url else url, re.sub(r"=(&|\Z)", "=1\g<1>", data) if data else data
     original = re.sub(DOM_FILTER_REGEX, "", _retrieve_content(url, data))
-    dom = max(re.search(_, original) for _ in DOM_PATTERNS)
+    dom = next(filter(None, (re.search(_, original) for _ in DOM_PATTERNS)), None)
     if dom:
-        print " (i) page itself appears to be XSS vulnerable (DOM)"
-        print "  (o) ...%s..." % dom.group(0)
+        print(" (i) page itself appears to be XSS vulnerable (DOM)")
+        print("  (o) ...%s..." % dom.group(0))
         retval = True
     try:
         for phase in (GET, POST):
             current = url if phase is GET else (data or "")
             for match in re.finditer(r"((\A|[?&])(?P<parameter>[\w\[\]]+)=)(?P<value>[^&#]*)", current):
                 found, usable = False, True
-                print "* scanning %s parameter '%s'" % (phase, match.group("parameter"))
-                prefix, suffix = ("".join(random.sample(string.ascii_lowercase, PREFIX_SUFFIX_LENGTH)) for i in xrange(2))
+                print("* scanning %s parameter '%s'" % (phase, match.group("parameter")))
+                prefix, suffix = ("".join(random.sample(string.ascii_lowercase, PREFIX_SUFFIX_LENGTH)) for i in range(2))
                 for pool in (LARGER_CHAR_POOL, SMALLER_CHAR_POOL):
                     if not found:
-                        tampered = current.replace(match.group(0), "%s%s" % (match.group(0), urllib.quote("%s%s%s%s" % ("'" if pool == LARGER_CHAR_POOL else "", prefix, "".join(random.sample(pool, len(pool))), suffix))))
+                        tampered = current.replace(match.group(0), "%s%s" % (match.group(0), urllib.parse.quote("%s%s%s%s" % ("'" if pool == LARGER_CHAR_POOL else "", prefix, "".join(random.sample(pool, len(pool))), suffix))))
                         content = (_retrieve_content(tampered, data) if phase is GET else _retrieve_content(url, tampered)).replace("%s%s" % ("'" if pool == LARGER_CHAR_POOL else "", prefix), prefix)
                         for regex, condition, info, content_removal_regex in REGULAR_PATTERNS:
                             filtered = re.sub(content_removal_regex or "", "", content)
@@ -68,22 +68,22 @@ def scan_page(url, data=None):
                                 context = re.search(regex % {"chars": re.escape(sample.group(0))}, filtered, re.I)
                                 if context and not found and sample.group(1).strip():
                                     if _contains(sample.group(1), condition):
-                                        print " (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info % dict((("filtering", "no" if all(char in sample.group(1) for char in LARGER_CHAR_POOL) else "some"),)))
+                                        print(" (i) %s parameter '%s' appears to be XSS vulnerable (%s)" % (phase, match.group("parameter"), info % dict((("filtering", "no" if all(char in sample.group(1) for char in LARGER_CHAR_POOL) else "some"),))))
                                         found = retval = True
                                     break
         if not usable:
-            print " (x) no usable GET/POST parameters found"
+            print(" (x) no usable GET/POST parameters found")
     except KeyboardInterrupt:
-        print "\r (x) Ctrl-C pressed"
+        print("\r (x) Ctrl-C pressed")
     return retval
 
 def init_options(proxy=None, cookie=None, ua=None, referer=None):
     global _headers
     _headers = dict(filter(lambda _: _[1], ((COOKIE, cookie), (UA, ua or NAME), (REFERER, referer))))
-    urllib2.install_opener(urllib2.build_opener(urllib2.ProxyHandler({'http': proxy})) if proxy else None)
+    urllib.request.install_opener(urllib.request.build_opener(urllib.request.ProxyHandler({'http': proxy})) if proxy else None)
 
 if __name__ == "__main__":
-    print "%s #v%s\n by: %s\n" % (NAME, VERSION, AUTHOR)
+    print("%s #v%s\n by: %s\n" % (NAME, VERSION, AUTHOR))
     parser = optparse.OptionParser(version=VERSION)
     parser.add_option("-u", "--url", dest="url", help="Target URL (e.g. \"http://www.target.com/page.php?id=1\")")
     parser.add_option("--data", dest="data", help="POST data (e.g. \"query=test\")")
@@ -95,6 +95,6 @@ if __name__ == "__main__":
     if options.url:
         init_options(options.proxy, options.cookie, options.ua, options.referer)
         result = scan_page(options.url if options.url.startswith("http") else "http://%s" % options.url, options.data)
-        print "\nscan results: %s vulnerabilities found" % ("possible" if result else "no")
+        print("\nscan results: %s vulnerabilities found" % ("possible" if result else "no"))
     else:
         parser.print_help()
