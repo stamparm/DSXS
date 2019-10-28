@@ -11,8 +11,8 @@ Sample runs
 ----
 
 ```
-$ python dsxs.py -h
-Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.2d
+$ python3 dsxs.py -h
+Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code) #v0.3a
  by: Miroslav Stampar (@stamparm)
 
 Usage: dsxs.py [options]
