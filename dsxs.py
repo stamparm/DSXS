@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import optparse, random, re, string, urllib, urllib.parse, urllib.request
+import optparse, random, re, string, urllib, urllib.parse, urllib.request  # Python 3 required
 
 NAME, VERSION, AUTHOR, LICENSE = "Damn Small XSS Scanner (DSXS) < 100 LoC (Lines of Code)", "0.3a", "Miroslav Stampar (@stamparm)", "Public domain (FREE)"
 
