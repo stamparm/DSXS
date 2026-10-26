@@ -22,7 +22,7 @@ jobs:
     # Fast and deterministic: no browser involved, so it can afford to run on
     # every interpreter DSXS claims to support.
     name: suite (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     timeout-minutes: 10
 
     env:
@@ -32,6 +32,9 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        include:
+          - python-version: "3.9"
+            os: ubuntu-24.04                # no 3.9 build exists for newer runner images
 
     steps:
       - uses: actions/checkout@v4
